@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formwork Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Schibsted+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: an operator's console. Fixed top bar + step rail, then each step is a working surface; Review is a split grid | source inspector. */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --sunken:#ECEEF3; --line:#DDE1E9; --ink:#141824; --muted:#576074;
+  --accent:#2742C9; --accent-ink:#FFFFFF; --accent-soft:#E6EAFB;
+  --good:#23794A; --good-soft:#E3F2E9; --warn:#9A5B00; --warn-soft:#FCF0D9; --crit:#B23A12; --crit-soft:#FBE6DE;
+  --font-display:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius:10px; --shadow:0 1px 2px rgba(20,24,36,.06), 0 8px 24px rgba(20,24,36,.06);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1016; --surface:#161922; --sunken:#11141B; --line:#283040; --ink:#E7EAF2; --muted:#9CA4B8;
+    --accent:#8197FF; --accent-ink:#0E1016; --accent-soft:#1E2747;
+    --good:#5CC48A; --good-soft:#15291F; --warn:#F0B44C; --warn-soft:#2E2412; --crit:#FF8A62; --crit-soft:#331A12;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1016; --surface:#161922; --sunken:#11141B; --line:#283040; --ink:#E7EAF2; --muted:#9CA4B8;
+  --accent:#8197FF; --accent-ink:#0E1016; --accent-soft:#1E2747;
+  --good:#5CC48A; --good-soft:#15291F; --warn:#F0B44C; --warn-soft:#2E2412; --crit:#FF8A62; --crit-soft:#331A12;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--font-mono);font-size:.92em}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:22px} h3{font-size:16px}
+.muted{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:18px}
+.brand svg{color:var(--accent)}
+.crumb{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px}
+.crumb b{color:var(--ink);font-weight:500}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:500;background:var(--sunken);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.chip.accent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.crit{background:var(--crit-soft);color:var(--crit);border-color:transparent}
+.steps{display:flex;gap:4px;padding:0 20px;overflow-x:auto}
+.step{display:flex;align-items:center;gap:10px;padding:10px 14px 12px;border:0;background:none;border-bottom:2px solid transparent;color:var(--muted);text-align:left;white-space:nowrap}
+.step .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background:var(--sunken);border:1px solid var(--line)}
+.step .lbl{display:flex;flex-direction:column;line-height:1.2}
+.step .lbl b{font-weight:600;color:var(--ink);font-size:14px}
+.step .lbl small{font-size:12px}
+.step.done .n{background:var(--good-soft);color:var(--good);border-color:transparent}
+.step.attn .n{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.step[aria-current="page"]{border-bottom-color:var(--accent)}
+.step[aria-current="page"] .n{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.step:hover .lbl b{color:var(--accent)}
+
+main{max-width:1440px;margin:0 auto;padding:20px}
+.view{display:none}
+.view.on{display:block}
+.view-head{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.view-head p{margin:4px 0 0;color:var(--muted);max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.card-pad{padding:16px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08);color:var(--accent-ink)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn:disabled{opacity:.55;cursor:default}
+.seg{display:inline-flex;background:var(--sunken);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-size:13.5px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* Schema */
+.schema-top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.src-panel{min-height:236px}
+.src-panel .tabbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mini-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.mini-table th,.mini-table td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:nowrap}
+.mini-table th{background:var(--sunken);font-family:var(--font-mono);font-weight:500;font-size:12px}
+.scroll-x{overflow-x:auto}
+pre.code{margin:0;background:var(--sunken);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:12.5px/1.55 var(--font-mono);overflow:auto;max-height:420px;white-space:pre}
+textarea.prompt{width:100%;min-height:104px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);line-height:1.5}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fact{padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--sunken)}
+.fact small{display:block;color:var(--muted);font-size:12px;margin-bottom:2px}
+.fact b{font-weight:600}
+.ftable{width:100%;border-collapse:collapse;font-size:14px}
+.ftable th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ftable td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.ftable tr:last-child td{border-bottom:0}
+.ftable input[type=text],.ftable select{width:100%;border:1px solid transparent;background:transparent;border-radius:6px;padding:5px 7px}
+.ftable input[type=text]:hover,.ftable select:hover{border-color:var(--line)}
+.ftable input[type=text]:focus,.ftable select:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.fname{font-family:var(--font-mono);font-weight:500;white-space:nowrap}
+.tchip{font-family:var(--font-mono);font-size:11.5px;padding:2px 7px;border-radius:5px;background:var(--sunken);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.keymark{font-size:11px;font-weight:600;color:var(--accent);margin-left:6px}
+.weak{display:flex;gap:6px;align-items:center;color:var(--warn);font-size:12.5px;margin:4px 7px 0}
+.rule{font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+
+/* Sources */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:26px;border:1.5px dashed var(--line);border-radius:var(--radius);background:var(--surface);transition:border-color .15s,background .15s}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop label{color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:16px}
+.src{display:flex;gap:12px;padding:14px;align-items:flex-start}
+.src .ico{flex:none;width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:var(--sunken);color:var(--muted);border:1px solid var(--line)}
+.src .meta{flex:1;min-width:0}
+.src .nm{font-weight:600;overflow-wrap:anywhere}
+.src .sub{color:var(--muted);font-size:13px}
+.src .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+
+/* Run */
+.pipeline{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.stage{position:relative;padding:12px;border-radius:var(--radius);border:1px solid var(--line);background:var(--surface);min-height:86px}
+.stage .sn{font-size:11.5px;color:var(--muted);font-family:var(--font-mono)}
+.stage b{display:block;font-family:var(--font-display);font-size:14.5px;margin:2px 0 6px}
+.stage .st{font-size:12.5px;color:var(--muted)}
+.stage.done{border-color:color-mix(in srgb,var(--good) 40%,var(--line))}
+.stage.done .st{color:var(--good)}
+.stage.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.stage.active .st{color:var(--accent)}
+.stage.merge b::after{content:"multi-source";margin-left:6px;font:600 10.5px var(--font-body);color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:999px;vertical-align:2px}
+.bar-track{height:4px;border-radius:2px;background:var(--sunken);margin-top:8px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);width:0}
+.stage.done .bar-fill{background:var(--good);width:100%}
+@media (prefers-reduced-motion: no-preference){
+  .stage.active .bar-fill{animation:sweep 1.1s ease-in-out infinite}
+  @keyframes sweep{0%{width:8%}50%{width:85%}100%{width:8%}}
+  .log li.new{animation:fadein .35s ease-out}
+  @keyframes fadein{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+.run-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:16px}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--sunken)}
+.metric small{display:block;color:var(--muted);font-size:12px}
+.metric b{font-family:var(--font-display);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
+.route-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--sunken);margin:14px 0 12px}
+.route-bar span{display:block;height:100%;transition:width .5s}
+.legend{display:grid;gap:8px;font-size:13.5px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.legend .v{margin-left:auto;font-family:var(--font-mono);font-size:12.5px;color:var(--muted);text-align:right}
+.log{list-style:none;margin:0;padding:0;font:12.5px/1.5 var(--font-mono);max-height:368px;overflow:auto}
+.log li{display:grid;grid-template-columns:48px 86px 1fr;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.log .t{color:var(--muted)}
+.log .sg{color:var(--accent)}
+.log .warnline .m{color:var(--warn)}
+
+/* Review */
+.summary{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;margin-bottom:12px}
+.sum{padding:10px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);min-width:118px}
+.sum small{display:block;font-size:12px;color:var(--muted)}
+.sum b{font-family:var(--font-display);font-size:22px;font-variant-numeric:tabular-nums}
+.sum.warn b{color:var(--warn)} .sum.crit b{color:var(--crit)} .sum.good b{color:var(--good)}
+.thresh{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);min-width:240px;flex:1;max-width:360px}
+.thresh label{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.thresh input{accent-color:var(--accent);width:100%}
+.review{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(360px,1fr);gap:16px;align-items:start}
+.grid-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.grid-wrap{overflow:auto}
+table.rg{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+table.rg th{position:sticky;top:0;background:var(--surface);z-index:1;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:500;white-space:nowrap}
+table.rg th .fname{font-size:12px}
+table.rg th small{display:block;color:var(--muted);font-size:11px;font-family:var(--font-mono)}
+table.rg td{padding:4px;border-bottom:1px solid var(--line);vertical-align:top}
+table.rg tr:last-child td{border-bottom:0}
+table.rg .rec{position:sticky;left:0;background:var(--surface);z-index:2;padding:10px 12px;min-width:150px;border-right:1px solid var(--line)}
+table.rg th.rec{z-index:3}
+.rec b{display:block;font-family:var(--font-mono);font-size:12.5px;font-weight:500}
+.rec small{color:var(--muted);font-size:12px}
+.cell{position:relative;display:block;width:100%;min-width:118px;text-align:left;padding:7px 16px 9px 9px;border-radius:7px;border:1px solid transparent;background:transparent;line-height:1.3}
+.cell:hover{background:var(--sunken)}
+.cell .val{display:block;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cell .cb{display:block;height:3px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.cell .cb i{display:block;height:100%;background:var(--good)}
+.cell.st-review{background:var(--warn-soft)}
+.cell.st-review .cb i{background:var(--warn)}
+.cell.st-conflict{background:var(--crit-soft)}
+.cell.st-conflict .cb i{background:var(--crit)}
+.cell.st-approved .cb i{background:var(--accent)}
+.cell .dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%}
+.cell.st-review .dot{background:var(--warn)}
+.cell.st-conflict .dot{background:var(--crit)}
+.cell.st-approved .dot{background:var(--accent)}
+.cell.resolved .dot{background:transparent;border:1.5px solid var(--accent)}
+.cell[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cell.dim{opacity:.32}
+.key-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.key-legend span{display:inline-flex;align-items:center;gap:5px}
+.key-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.insp{position:sticky;top:132px}
+.insp-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.insp-head .fname{font-size:13px;color:var(--muted)}
+.insp-val{font-family:var(--font-display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.meter{position:relative;height:8px;border-radius:4px;background:var(--sunken);margin:8px 0 4px}
+.meter i{display:block;height:100%;border-radius:4px}
+.meter .th{position:absolute;top:-4px;width:2px;height:16px;background:var(--ink);opacity:.6}
+.meter-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.srctabs{display:flex;gap:4px;padding:10px 12px 0;overflow-x:auto;border-bottom:1px solid var(--line)}
+.srctab{border:1px solid var(--line);border-bottom:0;background:var(--sunken);padding:6px 10px;border-radius:8px 8px 0 0;font-size:12.5px;white-space:nowrap;color:var(--muted)}
+.srctab[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:500;position:relative;top:1px}
+.srctab em{font-style:normal;font-size:11px;margin-left:4px;color:var(--muted)}
+.viewer{height:340px;overflow:auto;background:repeating-linear-gradient(45deg,var(--sunken),var(--sunken) 8px,var(--bg) 8px,var(--bg) 16px);padding:18px;position:relative}
+.ev-body{padding:14px 16px;display:grid;gap:14px}
+.quote{font-family:var(--font-mono);font-size:13px;padding:10px 12px;border-radius:8px;background:var(--sunken);border:1px solid var(--line)}
+.quote small{display:block;font-family:var(--font-body);color:var(--muted);font-size:12px;margin-bottom:3px}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13.5px}
+.checks li{display:flex;gap:8px;align-items:flex-start}
+.checks svg{flex:none;margin-top:2px}
+.ok{color:var(--good)} .bad{color:var(--crit)} .wn{color:var(--warn)}
+.alts{display:grid;gap:8px}
+.alt{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:8px;flex-wrap:wrap}
+.alt b{font-variant-numeric:tabular-nums}
+.alt small{display:block;color:var(--muted);font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)}
+.edit-row{display:flex;gap:8px}
+.edit-row input{flex:1;min-width:0;border:1px solid var(--accent);border-radius:8px;padding:7px 10px;background:var(--surface)}
+.note{font-size:13px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);color:var(--ink)}
+.done-banner{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:9px;background:var(--good-soft);color:var(--good);font-weight:500;margin-bottom:12px}
+
+/* Export */
+.export{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;align-items:start}
+.opt{display:grid;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.opt:last-child{border-bottom:0}
+.opt > small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px}
+.toggle input{width:18px;height:18px;accent-color:var(--accent)}
+.prev-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.xl{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.xl th,.xl td{border:1px solid var(--line);padding:5px 9px;white-space:nowrap}
+.xl th{background:var(--sunken);font-weight:500;font-family:var(--font-mono);font-size:12px}
+.xl .rn{background:var(--sunken);color:var(--muted);text-align:center;font-size:11px}
+.xl td.flag{background:var(--warn-soft)}
+
+/* Paper documents: always look like paper */
+.paper{position:relative;margin:0 auto;max-width:560px;background:#FFFFFF;color:#1C1C1C;font:12px/1.45 "IBM Plex Sans",Arial,sans-serif;padding:26px 28px;box-shadow:0 2px 10px rgba(0,0,0,.18);border-radius:2px}
+.paper [data-k]{border-radius:2px;transition:background .2s,box-shadow .2s}
+.paper .hl{background:rgba(255,206,0,.5);box-shadow:0 0 0 2px #2742C9}
+.paper .hl-alt{background:rgba(255,140,90,.28);box-shadow:0 0 0 2px #C2410C}
+.paper.scan{background:#EFEDE6;color:#2A2A2A;transform:rotate(-.7deg)}
+.paper.scan::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 20% 30%,rgba(0,0,0,.05),transparent 40%),radial-gradient(circle at 80% 70%,rgba(0,0,0,.06),transparent 45%)}
+.paper.photo{background:#FBF8F0;transform:perspective(900px) rotateX(4deg) rotate(.8deg)}
+.glare{position:absolute;pointer-events:none;width:180px;height:80px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,255,255,.92),rgba(255,255,255,0) 70%);top:48px;left:120px}
+.inv-head{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid #1C1C1C;padding-bottom:10px;margin-bottom:10px}
+.inv-vendor{font:700 16px/1.2 "Schibsted Grotesk",Arial,sans-serif}
+.inv-addr{color:#555;font-size:11px}
+.inv-title{font:700 13px "Schibsted Grotesk",Arial,sans-serif;letter-spacing:.12em;text-align:right}
+.inv-meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-bottom:10px}
+.inv-meta .bill{grid-column:1/-1;color:#444;font-size:11px;margin-top:4px}
+.inv-lines{width:100%;border-collapse:collapse;margin:8px 0;font-size:11.5px}
+.inv-lines th{background:#EFEFEF;text-align:left;padding:4px 6px;border:1px solid #CCC}
+.inv-lines td{padding:4px 6px;border:1px solid #DDD}
+.inv-lines .r{text-align:right;font-variant-numeric:tabular-nums}
+.inv-tot{margin-left:auto;width:62%;display:grid;gap:2px;font-variant-numeric:tabular-nums}
+.inv-tot div{display:flex;justify-content:space-between;gap:12px;padding:1px 4px}
+.inv-tot .grand{border-top:1.5px solid #1C1C1C;margin-top:4px;padding-top:4px;font-weight:700;font-size:13px}
+.inv-foot{margin-top:14px;padding-top:8px;border-top:1px solid #DDD;color:#444;font-size:11px}
+.hand{font-family:"Caveat",cursive;font-size:19px;color:#1E3A8A;line-height:1}
+.sheet{max-width:none;padding:0;font-size:12px;overflow:hidden}
+.sheet table{border-collapse:collapse;width:100%}
+.sheet th,.sheet td{border:1px solid #D7DCE3;padding:5px 8px;white-space:nowrap}
+.sheet th{background:#F1F3F6;color:#555;font-weight:500;font-size:11px}
+.sheet td.rn,.sheet th.rn{background:#F1F3F6;color:#777;text-align:center;width:28px;font-size:11px}
+.sheet .tabs{display:flex;gap:2px;background:#F1F3F6;border-top:1px solid #D7DCE3;padding:4px 8px;font-size:11px;color:#555}
+.sheet .tabs span{background:#fff;padding:2px 10px;border:1px solid #D7DCE3;border-top:0}
+.sheet tr.hl td{background:rgba(255,206,0,.42)}
+.sheet tr.hl{box-shadow:inset 0 0 0 2px #2742C9}
+.grn{background:#FCFBF5;transform:rotate(1.2deg)}
+.grn h4{margin:0 0 8px;font:700 13px "Schibsted Grotesk",Arial,sans-serif;letter-spacing:.06em}
+.grn table{width:100%;border-collapse:collapse}
+.grn th{font-size:10.5px;text-align:left;border-bottom:1.5px solid #333;padding:4px}
+.grn td{border-bottom:1px solid #C9C4B5;padding:2px 4px}
+.grn tr.hl td{background:rgba(255,206,0,.42)}
+.grn tr.hl{box-shadow:inset 0 0 0 2px #2742C9}
+.mail{font-size:12.5px}
+.mail .mh{display:grid;grid-template-columns:64px 1fr;gap:2px 8px;padding-bottom:10px;border-bottom:1px solid #DDD;margin-bottom:12px;color:#444}
+.mail .mh b{color:#1C1C1C;font-weight:600}
+.mail p{margin:0 0 9px}
+.attach{display:inline-flex;gap:6px;align-items:center;margin-top:6px;padding:5px 9px;border:1px solid #DDD;border-radius:6px;font-size:11.5px;color:#444}
+
+/* overlay + toast */
+.overlay{position:fixed;inset:0;background:rgba(10,12,18,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.overlay.on{display:flex}
+.modal{width:min(760px,100%);max-height:calc(100% - 40px);display:flex;flex-direction:column;overflow:hidden}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal .viewer{height:auto;flex:1;min-height:300px}
+.toasts{position:fixed;bottom:18px;right:18px;display:grid;gap:8px;z-index:60}
+.toast{background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:9px;font-size:13.5px;box-shadow:var(--shadow);max-width:340px}
+
+@media (max-width:1100px){
+  .pipeline{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .run-grid{grid-template-columns:1fr 1fr}
+  .run-grid .logcard{grid-column:1/-1}
+  .review{grid-template-columns:1fr}
+  .insp{position:static}
+}
+@media (max-width:760px){
+  main{padding:16px}
+  .top-row{padding:10px 16px}
+  .steps{padding:0 12px}
+  .schema-top,.export,.run-grid{grid-template-columns:1fr}
+  .pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .facts{grid-template-columns:1fr}
+  .crumb{display:none}
+  .ftable .hide-sm{display:none}
+  .paper{padding:18px}
+  .inv-tot{width:100%}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="13" height="5" rx="1"/><rect x="5.5" y="9.5" width="13" height="5" rx="1"/><rect x="8" y="16" width="13" height="5" rx="1"/></svg>
+      Formwork
+    </div>
+    <nav class="crumb" aria-label="Workspace">
+      <span>Finance Ops</span><span aria-hidden="true">/</span><b>Q3 vendor invoice reconciliation</b>
+    </nav>
+    <div class="spacer"></div>
+    <span class="chip" id="costChip">$0.19 · 7 files · 38 s</span>
+    <span class="chip accent">Prototype · sample data</span>
+  </div>
+  <nav class="steps" aria-label="Job steps" id="steps"></nav>
+</header>
+
+<main>
+  <!-- 1. TARGET FORMAT -->
+  <section class="view" id="v-schema" aria-labelledby="h-schema">
+    <div class="view-head">
+      <div>
+        <h2 id="h-schema">Target format</h2>
+        <p>Tell Formwork what the output should look like. Every source is shaped into these fields, and each value keeps a citation to where it came from.</p>
+      </div>
+      <span class="chip good">Schema v3 · saved</span>
+    </div>
+    <div class="schema-top">
+      <div class="card src-panel">
+        <div class="tabbar">
+          <h3>Define it from</h3>
+          <div class="seg" role="group" aria-label="Schema source" id="schemaSeg">
+            <button type="button" data-s="sample" aria-pressed="true">Sample file</button>
+            <button type="button" data-s="json" aria-pressed="false">JSON Schema</button>
+            <button type="button" data-s="prompt" aria-pressed="false">Describe it</button>
+          </div>
+        </div>
+        <div class="card-pad" id="schemaSrc"></div>
+      </div>
+      <div class="card card-pad">
+        <h3 style="margin-bottom:12px">What one record means</h3>
+        <div class="facts">
+          <div class="fact"><small>Record grain</small><b>One row per supplier invoice</b></div>
+          <div class="fact"><small>Entity key (joins sources)</small><b class="mono">invoice_no + po_number</b></div>
+          <div class="fact"><small>Currency and locale</small><b>INR, Indian digit grouping</b></div>
+          <div class="fact"><small>Output</small><b>JSON, CSV, XLSX + lineage</b></div>
+        </div>
+        <p class="muted" style="font-size:13px;margin:12px 0 0">Records from different files are matched on the entity key, then each field is resolved with its merge policy.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="grid-tools"><h3>Fields <span class="muted" id="fieldCount" style="font-weight:400"></span></h3><span class="muted" style="font-size:13px">Descriptions are the instructions the extractor follows. Edit them inline.</span></div>
+      <div class="scroll-x"><table class="ftable" id="fieldTable"></table></div>
+    </div>
+  </section>
+
+  <!-- 2. SOURCES -->
+  <section class="view" id="v-sources" aria-labelledby="h-sources">
+    <div class="view-head">
+      <div>
+        <h2 id="h-sources">Sources</h2>
+        <p>Mix any formats in one job. Scans and photos are read visually, spreadsheets are mapped once and applied to every row, and duplicate files are skipped by content hash.</p>
+      </div>
+    </div>
+    <div class="drop" id="drop">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" class="muted"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      <div>Drop PDFs, scans, photos, spreadsheets or .eml files here, or <label for="fileIn">browse</label></div>
+      <small class="muted">In this prototype, added files are listed but the run uses the sample set.</small>
+      <input type="file" id="fileIn" multiple class="sr">
+    </div>
+    <div class="src-grid" id="srcGrid"></div>
+  </section>
+
+  <!-- 3. RUN -->
+  <section class="view" id="v-run" aria-labelledby="h-run">
+    <div class="view-head">
+      <div>
+        <h2 id="h-run">Run</h2>
+        <p id="runSub">Completed in 38 s. Replay it to watch each stage, with the routing and repair decisions as they happened.</p>
+      </div>
+      <button type="button" class="btn primary" id="replay">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4v6h6"/><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8"/></svg>
+        Replay run at 4×
+      </button>
+    </div>
+    <div class="pipeline" id="pipeline"></div>
+    <div class="run-grid">
+      <div class="card card-pad">
+        <h3 style="margin-bottom:12px">Live metrics</h3>
+        <div class="metrics" id="metrics"></div>
+      </div>
+      <div class="card card-pad">
+        <h3>Model routing</h3>
+        <p class="muted" style="font-size:13px;margin:4px 0 0">Each region goes to the cheapest extractor that can read it.</p>
+        <div class="route-bar" id="routeBar" aria-hidden="true"></div>
+        <div class="legend" id="routeLegend"></div>
+      </div>
+      <div class="card card-pad logcard">
+        <h3 style="margin-bottom:8px">Event log</h3>
+        <ol class="log" id="log" aria-live="polite"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. REVIEW -->
+  <section class="view" id="v-review" aria-labelledby="h-review">
+    <div class="view-head">
+      <div>
+        <h2 id="h-review">Review</h2>
+        <p>Every value is shown beside the exact region it was read from. Fields under the confidence threshold, and fields where sources disagree, wait for you.</p>
+      </div>
+    </div>
+    <div id="doneBanner"></div>
+    <div class="summary" id="summary"></div>
+    <div class="review">
+      <div class="card">
+        <div class="grid-tools">
+          <div class="seg" role="group" aria-label="Filter cells" id="filterSeg">
+            <button type="button" data-f="all" aria-pressed="true">All fields</button>
+            <button type="button" data-f="review" aria-pressed="false">Needs review</button>
+            <button type="button" data-f="conflict" aria-pressed="false">Conflicts</button>
+          </div>
+          <div class="key-legend">
+            <span><i style="background:var(--good)"></i>Auto-approved</span>
+            <span><i style="background:var(--warn)"></i>Low confidence</span>
+            <span><i style="background:var(--crit)"></i>Sources disagree</span>
+            <span><i style="background:var(--accent)"></i>Approved by you</span>
+          </div>
+        </div>
+        <div class="grid-wrap"><table class="rg" id="grid"></table></div>
+      </div>
+      <aside class="card insp" id="insp" aria-label="Field inspector"></aside>
+    </div>
+  </section>
+
+  <!-- 5. EXPORT -->
+  <section class="view" id="v-export" aria-labelledby="h-export">
+    <div class="view-head">
+      <div>
+        <h2 id="h-export">Export</h2>
+        <p>The output follows your schema exactly. Lineage travels with it, so anyone downstream can trace a number to its page.</p>
+      </div>
+    </div>
+    <div class="export">
+      <div class="card">
+        <div class="opt"><small>Format</small>
+          <div class="seg" role="group" aria-label="Export format" id="fmtSeg">
+            <button type="button" data-x="json" aria-pressed="true">JSON</button>
+            <button type="button" data-x="csv" aria-pressed="false">CSV</button>
+            <button type="button" data-x="xlsx" aria-pressed="false">XLSX</button>
+            <button type="button" data-x="api" aria-pressed="false">API</button>
+          </div>
+        </div>
+        <div class="opt"><small>Options</small>
+          <label class="toggle"><input type="checkbox" id="optLineage"> Include lineage per field</label>
+          <label class="toggle"><input type="checkbox" id="optStatus" checked> Include review status column</label>
+        </div>
+        <div class="opt" id="exportNote"></div>
+      </div>
+      <div class="card">
+        <div class="prev-head"><h3 id="prevTitle">output.json</h3><button type="button" class="btn" id="copyBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          Copy</button></div>
+        <div class="card-pad" id="preview"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="card modal">
+    <div class="modal-head"><h3 id="modalTitle">Preview</h3><button type="button" class="btn ghost" id="modalClose" aria-label="Close preview">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="viewer" id="modalViewer"></div>
+  </div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inr = n => n.toLocaleString("en-IN");
+const inr2 = n => n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const ICON = {
+  pdf:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+  scan:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M4 12h16"/></svg>',
+  sheet:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/></svg>',
+  photo:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>',
+  mail:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  ok:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>',
+  bad:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  warn:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17v.5"/></svg>'
+};
+
+/* ---------- Schema ---------- */
+const FIELDS = [
+  {key:"invoice_no",type:"string",desc:"Supplier invoice number as printed in the header, for example INV-2041 or KAL/26/0917",policy:"require_agreement",req:true,entity:true,rule:""},
+  {key:"vendor",type:"string",desc:"Legal name of the supplier issuing the invoice, taken from the letterhead",policy:"prefer_highest_confidence",req:true,rule:""},
+  {key:"gstin",type:"string",desc:"Supplier GSTIN, 15 characters, checked against the GSTIN format",policy:"require_agreement",req:true,rule:"matches GSTIN pattern"},
+  {key:"po_number",type:"string",desc:"Our purchase order reference quoted on the invoice, in the form PO-#####",policy:"prefer_source_priority",req:true,entity:true,rule:"exists in PO register"},
+  {key:"invoice_date",type:"date",desc:"Date the invoice was issued, normalised to ISO 8601 (YYYY-MM-DD)",policy:"prefer_highest_confidence",req:true,rule:"valid date, not in future"},
+  {key:"taxable_value",type:"currency",desc:"Value before GST in INR, equal to the sum of the line amounts",policy:"require_agreement",req:true,rule:""},
+  {key:"gst_amount",type:"currency",desc:"Total GST in INR: IGST, or CGST plus SGST",policy:"require_agreement",req:true,rule:"= 18% of taxable_value"},
+  {key:"total",type:"currency",desc:"Invoice total payable in INR, including GST",policy:"require_agreement",req:true,rule:"= taxable_value + gst_amount"},
+  {key:"payment_terms",type:"enum",desc:"Terms",policy:"prefer_latest_source",req:false,rule:"Net 15 | Net 30 | Net 45 | Net 60"},
+  {key:"grn_match",type:"string",desc:"Compare the quantity received on the goods receipt note with the PO quantity: Matched, Short N or Excess N",policy:"prefer_highest_confidence",req:true,rule:""}
+];
+const POLICIES = ["prefer_highest_confidence","prefer_latest_source","prefer_source_priority","require_agreement","sum","concat_unique"];
+const wordCount = s => s.trim().split(/\s+/).filter(Boolean).length;
+
+/* ---------- Sources ---------- */
+const DOCS = {
+  D4:{name:"PO_register_Q3.xlsx",kind:"sheet",label:"Spreadsheet",detail:"1 sheet · 1 table island · Sheet1!A1:G7",cls:"PO register",route:"Tabular mapper"},
+  D1:{name:"INV-2041_Kestrel.pdf",kind:"pdf",label:"Digital PDF",detail:"1 page · text layer · 23 blocks",cls:"Invoice",route:"Haiku"},
+  D2:{name:"INV-2042_Kestrel.pdf",kind:"pdf",label:"Digital PDF",detail:"1 page · text layer · 19 blocks",cls:"Invoice",route:"Haiku"},
+  D3:{name:"KAL-26-0917_scan.pdf",kind:"scan",label:"Scanned PDF",detail:"2 pages · OCR at 200 DPI · 31 blocks",cls:"Invoice",route:"OCR + Haiku"},
+  D5:{name:"GRN_scans_Sep.jpg",kind:"photo",label:"Photo, handwriting",detail:"Deskewed 2.4° · 12 blocks",cls:"Goods receipt",route:"Sonnet vision"},
+  D6:{name:"Re_Invoice_KAL-26-0917.eml",kind:"mail",label:"Email",detail:"2 blocks · 1 attachment skipped (duplicate)",cls:"Correspondence",route:"Haiku"},
+  D7:{name:"HB-7731_phone.jpg",kind:"photo",label:"Phone photo",detail:"Perspective corrected · glare on 1 region · 17 blocks",cls:"Invoice",route:"Sonnet vision"}
+};
+const BUYER = 'Bill to: Northfield Components Ltd, Taratala Industrial Estate, Kolkata 700088 · GSTIN 19AAACN7781F1Z2';
+
+function invoice(o){
+  const lines = o.lines.map((l,i)=>`<tr><td>${i+1}</td><td>${l.d}</td><td>${l.h}</td><td class="r">${l.q}</td><td class="r">${l.r}</td><td class="r">${inr2(l.a)}</td></tr>`).join("");
+  const taxes = o.taxes.map(t=>`<div><span>${t[0]}</span><span>${inr2(t[1])}</span></div>`).join("");
+  return `<div class="paper ${o.style||""}">${o.glare?'<div class="glare"></div>':""}
+  <div class="inv-head"><div><div class="inv-vendor" data-k="vendor">${o.vendor}</div><div class="inv-addr">${o.addr}</div>
+  <div>GSTIN: <span data-k="gstin">${o.gstin}</span></div></div><div class="inv-title">TAX INVOICE<br><span style="font-weight:400;letter-spacing:0;font-size:11px">Original for recipient</span></div></div>
+  <div class="inv-meta"><div>Invoice No: <b data-k="invoice_no">${o.no}</b></div><div>Date: <span data-k="invoice_date" class="${o.hand?"hand":""}">${o.date}</span></div>
+  <div>PO Ref: <b data-k="po_number">${o.po}</b></div><div>Place of supply: ${o.pos}</div><div class="bill">${BUYER}</div></div>
+  <table class="inv-lines"><thead><tr><th>#</th><th>Description</th><th>HSN</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${lines}</tbody></table>
+  <div class="inv-tot"><div data-k="taxable_value"><span>Taxable value</span><span>${inr2(o.taxable)}</span></div>
+  <div data-k="gst_amount" style="display:grid;gap:2px;padding:0">${taxes}</div>
+  <div class="grand" data-k="total"><span>Total (INR)</span><span>${inr2(o.total)}</span></div></div>
+  <div class="inv-foot"><span data-k="payment_terms">${o.terms}</span> · ${o.bank}</div></div>`;
+}
+const RENDER = {
+  D1:()=>invoice({vendor:"Kestrel Fasteners Pvt Ltd",addr:"14 Dum Dum Road, Kolkata 700030, West Bengal",gstin:"19AABCK4521M1Z3",no:"INV-2041",date:"12-09-2026",po:"PO-88120",pos:"19 West Bengal",
+    lines:[{d:"M10 hex bolts, zinc plated",h:"7318",q:"15,000",r:"8.50",a:127500},{d:"M10 nyloc nuts",h:"7318",q:"15,000",r:"3.80",a:57000}],taxable:184500,taxes:[["CGST 9%",16605],["SGST 9%",16605]],total:217710,terms:"Payment terms: Net 30 days",bank:"HDFC Bank, Salt Lake branch"}),
+  D2:()=>invoice({vendor:"Kestrel Fasteners Pvt Ltd",addr:"14 Dum Dum Road, Kolkata 700030, West Bengal",gstin:"19AABCK4521M1Z3",no:"INV-2042",date:"19-09-2026",po:"PO-88131",pos:"19 West Bengal",
+    lines:[{d:"M8 socket head cap screws, box of 100",h:"7318",q:"400",r:"230.00",a:92000}],taxable:92000,taxes:[["CGST 9%",8280],["SGST 9%",8280]],total:108560,terms:"Payment terms: Net 30 days",bank:"HDFC Bank, Salt Lake branch"}),
+  D3:()=>invoice({style:"scan",vendor:"Kalinga Steel Works",addr:"Plot 22, Jagatpur Industrial Estate, Cuttack 754021, Odisha",gstin:"21AAFCK9083Q1ZP",no:"KAL/26/0917",date:"17.09.2026",po:"PO-88140",pos:"19 West Bengal (inter-state)",
+    lines:[{d:"MS flat bar 50 × 6 mm",h:"7211",q:"4.5 t",r:"61,500.00",a:276750},{d:"MS angle 40 × 40 × 5 mm",h:"7216",q:"2.0 t",r:"66,750.00",a:133500}],taxable:410250,taxes:[["IGST 18%",73845]],total:484095,terms:"Terms: 45 days from invoice date",bank:"State Bank of India, Cuttack main"}),
+  D7:()=>invoice({style:"photo",glare:true,hand:true,vendor:"Hooghly Bearings &amp; Co",addr:"7B Strand Road, Howrah 711101, West Bengal",gstin:"19AAGFH2210L1ZK",no:"HB-7731",date:"24/9/26",po:"PO-88152",pos:"19 West Bengal",
+    lines:[{d:"6205-2RS deep groove ball bearing",h:"8482",q:"400",r:"142.00",a:56800}],taxable:56800,taxes:[["CGST 9%",5112],["SGST 9%",5112]],total:67024,terms:"Payment: Net 15",bank:"Bank of Baroda, Howrah"}),
+  D4:()=>{
+    const rows=[["PO-88117","Eastern Packaging","Corrugated boxes 5-ply","2,000","pcs","18.00","36,000"],
+      ["PO-88120","Kestrel Fasteners Pvt Ltd","M10 bolts + nyloc nuts","30,000","pcs","6.15","1,84,500"],
+      ["PO-88131","Kestrel Fasteners Pvt Ltd","M8 SHCS, box of 100","400","box","230.00","92,000"],
+      ["PO-88140","Kalinga Steel Works","MS flat + angle","6.5","t","63,115.38","4,10,250"],
+      ["PO-88152","Hooghly Bearings & Co","6205-2RS bearings","400","pcs","142.00","56,800"],
+      ["PO-88158","Sarkar Electricals","Cable glands 20 mm","250","pcs","64.00","16,000"]];
+    const body=rows.map((r,i)=>`<tr data-k="${r[0].toLowerCase()}"><td class="rn">${i+2}</td>${r.map((c,j)=>`<td style="${j>=3&&j!==4?"text-align:right":""}">${esc(c)}</td>`).join("")}</tr>`).join("");
+    return `<div class="paper sheet"><table><thead><tr><th class="rn"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+    <tr><td class="rn">1</td><td><b>PO No</b></td><td><b>Vendor</b></td><td><b>Item</b></td><td><b>Qty</b></td><td><b>UoM</b></td><td><b>Rate</b></td><td><b>Amount</b></td></tr></thead><tbody>${body}</tbody></table>
+    <div class="tabs"><span>Sheet1</span>Approvals</div></div>`;
+  },
+  D5:()=>{
+    const rows=[["GRN-5521","15/9","PO-88120","bolts + nuts","30000","30000","ok"],["GRN-5530","22/9","PO-88131","M8 SHCS box","400","360","short 40"],
+      ["GRN-5534","20/9","PO-88140","MS flat/angle","6.5 t","6.5 t","ok"],["GRN-5541","26/9","PO-88152","6205 brg","400","400","ok"]];
+    const body=rows.map(r=>`<tr data-k="grn-${r[2].slice(3)}"><td class="mono" style="font-size:11px">${r[0]}</td>${r.slice(1).map(c=>`<td class="hand">${c}</td>`).join("")}</tr>`).join("");
+    return `<div class="paper grn"><h4>GOODS RECEIPT NOTE · STORES, TARATALA</h4><table><thead><tr><th>GRN</th><th>Date</th><th>PO</th><th>Item</th><th>Ordered</th><th>Received</th><th>Remark</th></tr></thead><tbody>${body}</tbody></table>
+    <p style="margin:12px 0 0;font-size:11px;color:#555">Checked by: <span class="hand">S. Das</span></p></div>`;
+  },
+  D6:()=>`<div class="paper mail"><div class="mh"><span>From</span><b>accounts@kalingasteel.in</b><span>To</span><span>ap@northfield.in</span><span>Date</span><span data-k="email-date">19 Sep 2026, 16:42</span><span>Subject</span><b>Re: Invoice KAL/26/0917, revised terms</b></div>
+    <p>Dear Ms. Sen,</p><p>Further to our call, please note the following against invoice KAL/26/0917 (PO-88140):</p>
+    <p>1. <span data-k="email-terms">Payment terms are revised to Net 30</span> for this order, as agreed.</p>
+    <p>2. After rounding off freight, <span data-k="email-total">the revised total is Rs 4,84,059</span>. A corrected copy will follow.</p>
+    <p>Regards,<br>Pradeep Mohanty<br>Kalinga Steel Works, Cuttack</p>
+    <span class="attach">${ICON.pdf.replace('width="20" height="20"','width="14" height="14"')} KAL-26-0917.pdf · duplicate of an uploaded file, skipped</span></div>`
+};
+
+/* ---------- Extracted records ---------- */
+function c(v,conf,doc,k,ext,quote,extra){ return Object.assign({v,c:conf,doc,k,ext,quote,orig:v,origC:conf},extra||{}); }
+const TXT="Text layer → Haiku", OCR="OCR → Haiku", VIS="Sonnet vision", HW="Handwriting → Sonnet";
+const RECORDS = [
+  {id:"INV-2041",who:"Kestrel Fasteners",f:{
+    invoice_no:c("INV-2041",.99,"D1","invoice_no",TXT,"Invoice No: INV-2041"),
+    vendor:c("Kestrel Fasteners Pvt Ltd",.98,"D1","vendor",TXT,"Kestrel Fasteners Pvt Ltd",{also:[{doc:"D4",k:"po-88120"}]}),
+    gstin:c("19AABCK4521M1Z3",.97,"D1","gstin",TXT,"GSTIN: 19AABCK4521M1Z3"),
+    po_number:c("PO-88120",.98,"D1","po_number",TXT,"PO Ref: PO-88120",{also:[{doc:"D4",k:"po-88120"}]}),
+    invoice_date:c("2026-09-12",.97,"D1","invoice_date",TXT,"Date: 12-09-2026"),
+    taxable_value:c(184500,.98,"D1","taxable_value",TXT,"Taxable value 1,84,500.00"),
+    gst_amount:c(33210,.96,"D1","gst_amount",TXT,"CGST 9% 16,605.00 · SGST 9% 16,605.00"),
+    total:c(217710,.98,"D1","total",TXT,"Total (INR) 2,17,710.00"),
+    payment_terms:c("Net 30",.95,"D1","payment_terms",TXT,"Payment terms: Net 30 days"),
+    grn_match:c("Matched",.94,"D5","grn-88120",HW,"GRN-5521 · PO-88120 · 30000 / 30000 · ok")}},
+  {id:"INV-2042",who:"Kestrel Fasteners",f:{
+    invoice_no:c("INV-2042",.99,"D2","invoice_no",TXT,"Invoice No: INV-2042"),
+    vendor:c("Kestrel Fasteners Pvt Ltd",.98,"D2","vendor",TXT,"Kestrel Fasteners Pvt Ltd",{also:[{doc:"D4",k:"po-88131"}]}),
+    gstin:c("19AABCK4521M1Z3",.97,"D2","gstin",TXT,"GSTIN: 19AABCK4521M1Z3"),
+    po_number:c("PO-88131",.98,"D2","po_number",TXT,"PO Ref: PO-88131",{also:[{doc:"D4",k:"po-88131"}]}),
+    invoice_date:c("2026-09-19",.97,"D2","invoice_date",TXT,"Date: 19-09-2026"),
+    taxable_value:c(92000,.98,"D2","taxable_value",TXT,"Taxable value 92,000.00"),
+    gst_amount:c(16560,.96,"D2","gst_amount",TXT,"CGST 9% 8,280.00 · SGST 9% 8,280.00"),
+    total:c(108560,.98,"D2","total",TXT,"Total (INR) 1,08,560.00"),
+    payment_terms:c("Net 30",.95,"D2","payment_terms",TXT,"Payment terms: Net 30 days"),
+    grn_match:c("Short 40",.81,"D5","grn-88131",HW,"GRN-5530 · PO-88131 · 400 / 360 · short 40",{note:"Received quantity is handwritten; \"360\" read with 0.81 confidence. PO register orders 400 boxes."})}},
+  {id:"KAL/26/0917",who:"Kalinga Steel Works",f:{
+    invoice_no:c("KAL/26/0917",.94,"D3","invoice_no",OCR,"Invoice No: KAL/26/0917",{also:[{doc:"D6",k:"email-date"}]}),
+    vendor:c("Kalinga Steel Works",.95,"D3","vendor",OCR,"Kalinga Steel Works",{also:[{doc:"D4",k:"po-88140"}]}),
+    gstin:c("21AAFCK9083Q1ZP",.9,"D3","gstin",OCR,"GSTIN: 21AAFCK9083Q1ZP"),
+    po_number:c("PO-88140",.93,"D3","po_number",OCR,"PO Ref: PO-88140",{also:[{doc:"D4",k:"po-88140"}]}),
+    invoice_date:c("2026-09-17",.92,"D3","invoice_date",OCR,"Date: 17.09.2026"),
+    taxable_value:c(410250,.93,"D3","taxable_value",OCR,"Taxable value 4,10,250.00"),
+    gst_amount:c(73845,.92,"D3","gst_amount",OCR,"IGST 18% 73,845.00"),
+    total:c(484095,.88,"D3","total",OCR,"Total (INR) 4,84,095.00",{conflict:true,alts:[{v:484059,c:.86,doc:"D6",k:"email-total",quote:"the revised total is Rs 4,84,059",ext:"Text → Haiku"}],
+      note:"Policy require_agreement: the invoice and the supplier's email give different totals, so neither is chosen automatically."}),
+    payment_terms:c("Net 30",.93,"D6","email-terms","Text → Haiku","Payment terms are revised to Net 30",{resolved:"prefer_latest_source",alts:[{v:"Net 45",c:.9,doc:"D3",k:"payment_terms",quote:"Terms: 45 days from invoice date",ext:OCR}],
+      note:"Resolved by policy prefer_latest_source: the email (19 Sep) is newer than the invoice (17 Sep)."}),
+    grn_match:c("Matched",.9,"D5","grn-88140",HW,"GRN-5534 · PO-88140 · 6.5 t / 6.5 t · ok")}},
+  {id:"HB-7731",who:"Hooghly Bearings",f:{
+    invoice_no:c("HB-7731",.95,"D7","invoice_no",VIS,"Invoice No: HB-7731"),
+    vendor:c("Hooghly Bearings & Co",.95,"D7","vendor",VIS,"Hooghly Bearings & Co",{also:[{doc:"D4",k:"po-88152"}]}),
+    gstin:c("19AAGFH2210L1ZK",.78,"D7","gstin",VIS,"GSTIN: 19AAGFH2210L1ZK",{note:"Repair pass: attempt 1 read 19AAGFH221OL1ZK (letter O), which fails the GSTIN format. Re-extracted with Sonnet on a 300 DPI crop; glare still covers part of the region."}),
+    po_number:c("PO-88152",.92,"D7","po_number",VIS,"PO Ref: PO-88152",{also:[{doc:"D4",k:"po-88152"}]}),
+    invoice_date:c("2026-09-24",.62,"D7","invoice_date",VIS,"Date: 24/9/26 (handwritten)",{note:"Handwritten date. Read as 24/9/26 and normalised to 2026-09-24; the GRN records receipt on 26/9, which is consistent."}),
+    taxable_value:c(56800,.93,"D7","taxable_value",VIS,"Taxable value 56,800.00"),
+    gst_amount:c(10224,.91,"D7","gst_amount",VIS,"CGST 9% 5,112.00 · SGST 9% 5,112.00"),
+    total:c(67024,.92,"D7","total",VIS,"Total (INR) 67,024.00"),
+    payment_terms:c("Net 15",.9,"D7","payment_terms",VIS,"Payment: Net 15"),
+    grn_match:c("Matched",.92,"D5","grn-88152",HW,"GRN-5541 · PO-88152 · 400 / 400 · ok")}}
+];
+
+/* ---------- State ---------- */
+const VIEWS = ["schema","sources","run","review","export"];
+const S = {view:"review",threshold:.85,filter:"all",sel:{r:2,f:"total"},src:0,editing:false,schemaSrc:"sample",fmt:"json",runIdx:null,added:[]};
+
+function fieldDef(k){ return FIELDS.find(f=>f.key===k); }
+function status(cell){
+  if(cell.approved) return "approved";
+  if(cell.conflict) return "conflict";
+  if(cell.c < S.threshold) return "review";
+  return "auto";
+}
+function fmtVal(k,v){
+  const t = fieldDef(k).type;
+  if(t==="currency" && typeof v==="number") return "₹" + inr(v);
+  return String(v);
+}
+function counts(){
+  let auto=0,rev=0,conf=0,appr=0;
+  RECORDS.forEach(r=>Object.values(r.f).forEach(cell=>{const s=status(cell); if(s==="auto")auto++; else if(s==="review")rev++; else if(s==="conflict")conf++; else appr++;}));
+  return {auto,rev,conf,appr,total:RECORDS.length*FIELDS.length};
+}
+
+/* ---------- Steps ---------- */
+function renderSteps(){
+  const n = counts(); const open = n.rev+n.conf;
+  const items = [
+    ["schema","Target format",`${FIELDS.length} fields · v3`,"done"],
+    ["sources","Sources",`${Object.keys(DOCS).length + S.added.length} files`,"done"],
+    ["run","Run",S.runIdx!==null && S.runIdx < EVENTS.length-1 ? "Running…" : "Done in 38 s", S.runIdx!==null && S.runIdx < EVENTS.length-1 ? "" : "done"],
+    ["review","Review",open ? `${open} to review` : "All approved", open ? "attn" : "done"],
+    ["export","Export","JSON · CSV · XLSX",""]
+  ];
+  $("#steps").innerHTML = items.map((it,i)=>`<button type="button" class="step ${it[3]}" data-v="${it[0]}" ${S.view===it[0]?'aria-current="page"':""}>
+    <span class="n">${it[3]==="done"&&S.view!==it[0]?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>':i+1}</span>
+    <span class="lbl"><b>${it[1]}</b><small>${it[2]}</small></span></button>`).join("");
+}
+$("#steps").addEventListener("click",e=>{const b=e.target.closest(".step"); if(b) go(b.dataset.v);});
+function go(v){ if(!VIEWS.includes(v)) v="review"; S.view=v; try{ if(location.hash!=="#"+v) history.replaceState(null,"","#"+v); }catch(_){ } render(); window.scrollTo({top:0}); }
+
+/* ---------- Schema view ---------- */
+function renderSchema(){
+  document.querySelectorAll("#schemaSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.s===S.schemaSrc)));
+  let h="";
+  if(S.schemaSrc==="sample"){
+    h = `<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><span class="muted">${ICON.sheet}</span><div><b>AP_recon_template.xlsx</b><div class="muted" style="font-size:13px">10 columns · 1 example row · types inferred, descriptions drafted for you</div></div></div>
+    <div class="scroll-x"><table class="mini-table"><thead><tr>${FIELDS.map(f=>`<th>${f.key}</th>`).join("")}</tr></thead>
+    <tbody><tr><td>INV-1987</td><td>Acme Tools Ltd</td><td>19ABCDE1234F1Z5</td><td>PO-88001</td><td>2026-06-30</td><td>50000</td><td>9000</td><td>59000</td><td>Net 30</td><td>Matched</td></tr></tbody></table></div>`;
+  } else if(S.schemaSrc==="json"){
+    const props = {}; FIELDS.forEach(f=>{ const p={type:f.type==="currency"?"number":f.type==="date"?"string":f.type==="enum"?"string":"string",description:f.desc}; if(f.type==="date")p.format="date"; if(f.type==="enum")p.enum=["Net 15","Net 30","Net 45","Net 60"]; if(f.key==="gstin")p.pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$"; props[f.key]=p; });
+    const schema = {"$schema":"https://json-schema.org/draft/2020-12/schema",title:"AP invoice reconciliation",type:"object","x-entity-key":["invoice_no","po_number"],required:FIELDS.filter(f=>f.req).map(f=>f.key),properties:props};
+    h = `<pre class="code" style="max-height:200px">${esc(JSON.stringify(schema,null,2))}</pre>`;
+  } else {
+    h = `<label for="promptIn" class="muted" style="font-size:13px;display:block;margin-bottom:6px">Describe the output in plain words</label>
+    <textarea id="promptIn" class="prompt">One row per supplier invoice. Capture the supplier GSTIN, our PO reference, taxable value, GST and total in INR, payment terms, and whether the goods receipt matches the PO quantity.</textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button type="button" class="btn primary" id="compileBtn">Compile to fields</button></div>`;
+  }
+  $("#schemaSrc").innerHTML = h;
+  const cb = $("#compileBtn");
+  if(cb) cb.addEventListener("click",()=>{ cb.disabled=true; cb.textContent="Compiling…"; setTimeout(()=>{cb.disabled=false; cb.textContent="Compile to fields"; toast("Compiled 10 fields from your description. Check them below.");},1100); });
+
+  $("#fieldCount").textContent = `· ${FIELDS.length}`;
+  $("#fieldTable").innerHTML = `<thead><tr><th>Field</th><th>Type</th><th style="min-width:280px">Description (what to look for)</th><th class="hide-sm">Merge policy</th><th class="hide-sm">Rule</th><th>Required</th></tr></thead><tbody>${
+    FIELDS.map((f,i)=>`<tr><td><span class="fname">${f.key}</span>${f.entity?'<span class="keymark">KEY</span>':""}</td>
+    <td><span class="tchip">${f.type}</span></td>
+    <td><input type="text" id="desc-${i}" data-i="${i}" value="${esc(f.desc)}" aria-label="Description for ${f.key}">${wordCount(f.desc)<8?`<div class="weak">${ICON.warn} Weak description (${wordCount(f.desc)} word${wordCount(f.desc)===1?"":"s"}). Say what the value looks like and where it appears.</div>`:""}</td>
+    <td class="hide-sm"><select id="pol-${i}" data-i="${i}" aria-label="Merge policy for ${f.key}">${POLICIES.map(p=>`<option ${p===f.policy?"selected":""}>${p}</option>`).join("")}</select></td>
+    <td class="hide-sm"><span class="rule">${esc(f.rule||"·")}</span></td>
+    <td><input type="checkbox" id="req-${i}" data-i="${i}" ${f.req?"checked":""} aria-label="${f.key} required" style="width:18px;height:18px;accent-color:var(--accent)"></td></tr>`).join("")
+  }</tbody>`;
+}
+$("#schemaSeg").addEventListener("click",e=>{const b=e.target.closest("button"); if(b){S.schemaSrc=b.dataset.s; renderSchema();}});
+$("#fieldTable").addEventListener("change",e=>{
+  const t=e.target, i=+t.dataset.i; if(isNaN(i)) return;
+  if(t.tagName==="SELECT"){ FIELDS[i].policy=t.value; toast(`${FIELDS[i].key} now merges with ${t.value}`); }
+  else if(t.type==="checkbox"){ FIELDS[i].req=t.checked; }
+  else { FIELDS[i].desc=t.value; renderSchema(); const el=$("#desc-"+i); if(el){el.focus(); el.setSelectionRange(el.value.length,el.value.length);} }
+});
+
+/* ---------- Sources view ---------- */
+function kindOf(name){
+  const ext=(name.split(".").pop()||"").toLowerCase();
+  if(["xlsx","xls","csv"].includes(ext)) return ["sheet","Spreadsheet"];
+  if(["jpg","jpeg","png","heic","webp","tif","tiff"].includes(ext)) return ["photo","Image"];
+  if(["eml","msg"].includes(ext)) return ["mail","Email"];
+  if(ext==="pdf") return ["pdf","PDF"];
+  if(["doc","docx"].includes(ext)) return ["pdf","Word document"];
+  return ["pdf","Document"];
+}
+function renderSources(){
+  const sample = Object.entries(DOCS).map(([id,d])=>`<div class="card src"><div class="ico">${ICON[d.kind]}</div><div class="meta">
+    <div class="nm">${esc(d.name)}</div><div class="sub">${d.label} · ${d.detail}</div>
+    <div class="row"><span class="chip">${d.cls}</span><span class="chip accent">→ ${d.route}</span><span class="chip good">Parsed</span>
+    <span class="spacer"></span><button type="button" class="btn ghost" data-prev="${id}" style="min-height:32px;padding:4px 10px">Preview</button></div></div></div>`).join("");
+  const added = S.added.map(f=>{const k=kindOf(f.name); return `<div class="card src"><div class="ico">${ICON[k[0]]}</div><div class="meta">
+    <div class="nm">${esc(f.name)}</div><div class="sub">${k[1]} · ${(f.size/1024).toFixed(0)} KB</div>
+    <div class="row"><span class="chip warn">Queued for next run</span></div></div></div>`;}).join("");
+  $("#srcGrid").innerHTML = added + sample;
+}
+$("#srcGrid").addEventListener("click",e=>{const b=e.target.closest("[data-prev]"); if(b) openPreview(b.dataset.prev);});
+function addFiles(list){ Array.from(list).forEach(f=>S.added.push({name:f.name,size:f.size})); renderSources(); renderSteps(); toast(`${list.length} file${list.length===1?"":"s"} added. Detected type shown on each card.`); }
+$("#fileIn").addEventListener("change",e=>{ if(e.target.files.length) addFiles(e.target.files); e.target.value=""; });
+const drop=$("#drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault(); drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{ if(e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+/* ---------- Preview modal ---------- */
+let lastFocus=null;
+function openPreview(id){
+  lastFocus=document.activeElement;
+  $("#modalTitle").textContent = DOCS[id].name;
+  $("#modalViewer").innerHTML = RENDER[id]();
+  $("#overlay").classList.add("on");
+  $("#modalClose").focus();
+}
+function closePreview(){ $("#overlay").classList.remove("on"); if(lastFocus) lastFocus.focus(); }
+$("#modalClose").addEventListener("click",closePreview);
+$("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closePreview(); });
+$("#overlay").addEventListener("keydown",e=>{ if(e.key==="Escape") closePreview(); });
+
+/* ---------- Run view ---------- */
+const STAGES=["Compile schema","Ingest","Classify","Route","Extract","Merge","Validate + repair","Output"];
+const EVENTS=[
+  [0,0,'Schema "AP invoice reconciliation" v3 · 10 fields · key invoice_no + po_number',[0,0,0,0,0]],
+  [1.6,1,"PO_register_Q3.xlsx → 1 table island, Sheet1!A1:G7",[1,1,0,0,0]],
+  [3.6,1,"INV-2041_Kestrel.pdf → text layer found · 23 blocks",[2,24,0,0,0]],
+  [5.2,1,"INV-2042_Kestrel.pdf → text layer found · 19 blocks",[3,43,0,0,0]],
+  [8.4,1,"KAL-26-0917_scan.pdf → no text layer · OCR at 200 DPI · 2 pages · 31 blocks",[5,74,0,0,0]],
+  [11.2,1,"GRN_scans_Sep.jpg → deskewed 2.4° · handwriting detected · 12 blocks",[6,86,0,0,0]],
+  [12.8,1,"Re_Invoice_KAL-26-0917.eml → 2 blocks · attachment is a duplicate (SHA-256), skipped",[7,88,0,0,0]],
+  [14.4,1,"HB-7731_phone.jpg → perspective corrected · glare on 1 region · 17 blocks",[8,105,0,0,0]],
+  [16.0,2,"4 invoices · 1 PO register · 1 goods receipt · 1 email",[8,105,0,1,.004]],
+  [18.0,3,"Sheet1!A1:G7 → tabular mapper · 1 LLM call, plan cached for reuse",[8,105,0,2,.006]],
+  [18.8,3,"38 text and table blocks → Haiku · 7 handwritten or low-OCR regions → Sonnet vision",[8,105,0,2,.006]],
+  [24.8,4,"40 values extracted with citations · 1 discarded: quote not found in its block",[8,105,40,12,.142],"warn"],
+  [27.6,5,"4 records matched across 7 sources on invoice_no + po_number",[8,105,40,12,.142]],
+  [28.4,5,"KAL/26/0917 payment_terms → Net 30 by prefer_latest_source (email of 19 Sep)",[8,105,40,12,.142]],
+  [29.2,5,"KAL/26/0917 total: invoice ₹4,84,095 vs email ₹4,84,059 → conflict",[8,105,40,12,.142],"warn"],
+  [31.2,6,'HB-7731 gstin "19AAGFH221OL1ZK" fails GSTIN format → repair',[8,105,40,12,.142],"warn"],
+  [34.4,6,"Repair: re-extracted with Sonnet on a 300 DPI crop → 19AAGFH2210L1ZK (0.78)",[8,105,40,14,.188]],
+  [36.0,6,"39 of 40 values pass rules · 36 auto-approved at ≥ 0.85",[8,105,40,14,.188]],
+  [37.6,7,"4 records written · lineage.json written · 4 fields sent to review",[8,105,40,14,.188]]
+];
+let timers=[];
+function renderRun(){
+  const idx = S.runIdx===null ? EVENTS.length-1 : S.runIdx;
+  const finished = idx===EVENTS.length-1 && S.runIdx===null || idx===EVENTS.length-1;
+  const cur = idx>=0 ? EVENTS[idx] : null;
+  const curStage = cur ? cur[1] : -1;
+  $("#pipeline").innerHTML = STAGES.map((s,i)=>{
+    const evs = EVENTS.filter(e=>e[1]===i);
+    const st = (i<curStage || (finished && i<=curStage)) ? "done" : (i===curStage ? "active" : "");
+    const t0 = evs[0][0], t1 = (EVENTS[EVENTS.indexOf(evs[evs.length-1])+1]||[37.6+.8])[0];
+    const lbl = st==="done" ? `${(t1-t0).toFixed(1)} s` : st==="active" ? "Working…" : "Queued";
+    return `<div class="stage ${st} ${i===5?"merge":""}"><span class="sn">0${i+1}</span><b>${s}</b><span class="st">${lbl}</span><div class="bar-track"><div class="bar-fill"></div></div></div>`;
+  }).join("");
+  const m = cur ? cur[3] : [0,0,0,0,0];
+  const el = cur ? cur[0] : 0;
+  $("#metrics").innerHTML = [["Pages read",m[0]+" / 8"],["Blocks",m[1]],["Values extracted",m[2]],["LLM calls",m[3]],["Cost","$"+m[4].toFixed(2)],["Elapsed",el.toFixed(1)+" s"]]
+    .map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("");
+  const routed = idx>=10;
+  const seg = [["Tabular mapper",6,"var(--good)","6 rows · 1 call"],["Haiku",38,"var(--accent)","38 blocks · 9 calls"],["Sonnet vision",7,"var(--warn)","7 regions · 4 calls"]];
+  const tot = 51;
+  $("#routeBar").innerHTML = seg.map(s=>`<span style="width:${routed?s[1]/tot*100:0}%;background:${s[2]}"></span>`).join("");
+  $("#routeLegend").innerHTML = seg.map(s=>`<div><i style="background:${s[2]}"></i>${s[0]}<span class="v">${routed?s[3]:"·"}</span></div>`).join("")
+    + `<div><i style="background:var(--crit)"></i>Ungrounded, discarded<span class="v">${idx>=11?"1 value":"·"}</span></div>`;
+  $("#log").innerHTML = EVENTS.slice(0,idx+1).map((e,i)=>`<li class="${e[4]==="warn"?"warnline":""} ${S.runIdx!==null&&i===idx?"new":""}"><span class="t">${e[0].toFixed(1)}s</span><span class="sg">${STAGES[e[1]].split(" ")[0]}</span><span class="m">${esc(e[2])}</span></li>`).join("");
+  const log=$("#log"); log.scrollTop=log.scrollHeight;
+  $("#runSub").textContent = finished ? "Completed in 38 s. Replay it to watch each stage, with the routing and repair decisions as they happened." : "Replaying at 4× speed…";
+  $("#replay").disabled = !finished;
+}
+$("#replay").addEventListener("click",()=>{
+  timers.forEach(clearTimeout); timers=[];
+  if(reduced){ S.runIdx=null; renderRun(); return; }
+  S.runIdx=-1; renderRun(); renderSteps();
+  EVENTS.forEach((e,i)=>timers.push(setTimeout(()=>{ S.runIdx=i; if(i===EVENTS.length-1){ S.runIdx=null; toast("Run complete. 4 fields are waiting in Review."); } if(S.view==="run") renderRun(); renderSteps(); }, e[0]*250+120)));
+});
+
+/* ---------- Review view ---------- */
+function checksFor(r,k,val){
+  const rec=RECORDS[r].f, out=[];
+  out.push(["ok",`Grounded: quote found in its source block`]);
+  if(k==="total"){ const sum=rec.taxable_value.v+rec.gst_amount.v; out.push(val===sum?["ok",`Equals taxable_value + gst_amount (₹${inr(sum)})`]:["bad",`Does not equal taxable_value + gst_amount (₹${inr(sum)})`]); }
+  if(k==="gst_amount"){ const exp=Math.round(rec.taxable_value.v*.18); out.push(Math.abs(val-exp)<=1?["ok",`18% of taxable value (₹${inr(exp)})`]:["bad",`Expected 18% of taxable value, ₹${inr(exp)}`]); }
+  if(k==="gstin"){ const okp=/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(val); out.push(okp?["ok","Matches the GSTIN format"]:["bad","Does not match the GSTIN format"]); if(okp) out.push(["ok",`State code ${String(val).slice(0,2)} (${String(val).startsWith("21")?"Odisha":"West Bengal"})`]); }
+  if(k==="po_number"){ out.push(/^PO-\d{5}$/.test(val)?["ok","Format PO-#####"]:["bad","Expected format PO-#####"]); out.push(["ok","Found in PO_register_Q3.xlsx"]); }
+  if(k==="invoice_date"){ const d=Date.parse(val); out.push(!isNaN(d)&&d<=Date.parse("2026-11-14")?["ok","Valid date, not in the future"]:["bad","Not a valid past date"]); }
+  if(k==="payment_terms"){ out.push(["Net 15","Net 30","Net 45","Net 60"].includes(val)?["ok","One of the allowed values"]:["bad","Not an allowed value"]); }
+  if(k==="grn_match" && String(val).startsWith("Short")) out.push(["wn","Quantity received is below the PO quantity: flag for AP before payment"]);
+  return out;
+}
+function cellOrder(){ const a=[]; RECORDS.forEach((r,ri)=>FIELDS.forEach(f=>a.push({r:ri,f:f.key}))); return a; }
+function nextIssue(){
+  const order=cellOrder(); const start=order.findIndex(x=>x.r===S.sel.r&&x.f===S.sel.f);
+  for(let i=1;i<=order.length;i++){ const x=order[(start+i)%order.length]; const s=status(RECORDS[x.r].f[x.f]); if(s==="review"||s==="conflict") return x; }
+  return null;
+}
+function renderReview(){
+  const n=counts(); const open=n.rev+n.conf;
+  $("#doneBanner").innerHTML = open? "" : `<div class="done-banner">${ICON.ok} All ${n.total} fields are approved. The output is ready to export.<span class="spacer"></span><button type="button" class="btn" id="toExport">Go to export</button></div>`;
+  const te=$("#toExport"); if(te) te.addEventListener("click",()=>go("export"));
+  $("#summary").innerHTML = `
+    <div class="sum"><small>Records</small><b>${RECORDS.length}</b></div>
+    <div class="sum"><small>Fields</small><b>${n.total}</b></div>
+    <div class="sum good"><small>Auto-approved</small><b>${n.auto}</b></div>
+    <div class="sum warn"><small>Low confidence</small><b>${n.rev}</b></div>
+    <div class="sum crit"><small>Conflicts</small><b>${n.conf}</b></div>
+    <div class="sum"><small>Approved by you</small><b>${n.appr}</b></div>
+    <div class="thresh"><label for="thr"><span>Auto-approve threshold</span><b class="num">${S.threshold.toFixed(2)}</b></label>
+      <input type="range" id="thr" min="0.6" max="0.98" step="0.01" value="${S.threshold}"></div>`;
+  $("#thr").addEventListener("input",e=>{ S.threshold=+e.target.value; renderReview(); renderSteps(); const t=$("#thr"); t.focus(); });
+  document.querySelectorAll("#filterSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f===S.filter)));
+
+  let h = `<thead><tr><th class="rec">Record</th>${FIELDS.map(f=>`<th><span class="fname">${f.key}</span><small>${f.type}</small></th>`).join("")}</tr></thead><tbody>`;
+  RECORDS.forEach((r,ri)=>{
+    h += `<tr><td class="rec"><b>${esc(r.id)}</b><small>${esc(r.who)}</small></td>`;
+    FIELDS.forEach(f=>{
+      const cell=r.f[f.key], s=status(cell);
+      const dim = (S.filter==="review" && !(s==="review"||s==="conflict")) || (S.filter==="conflict" && s!=="conflict");
+      const sel = S.sel.r===ri && S.sel.f===f.key;
+      h += `<td><button type="button" class="cell st-${s} ${cell.resolved&&s==="auto"?"resolved":""} ${dim?"dim":""}" data-r="${ri}" data-f="${f.key}" aria-pressed="${sel}" aria-label="${f.key} for ${esc(r.id)}: ${esc(fmtVal(f.key,cell.v))}, ${s}">
+        <span class="dot"></span><span class="val">${esc(fmtVal(f.key,cell.v))}</span><span class="cb"><i style="width:${Math.round(cell.c*100)}%"></i></span></button></td>`;
+    });
+    h += `</tr>`;
+  });
+  $("#grid").innerHTML = h + `</tbody>`;
+  const sc=$("#grid").querySelector('.cell[aria-pressed="true"]'), gw=$(".grid-wrap");
+  if(sc&&gw){ const cr=sc.getBoundingClientRect(), wr=gw.getBoundingClientRect(); if(cr.right>wr.right||cr.left<wr.left+150) gw.scrollLeft += (cr.left-wr.left) - 170; }
+  renderInspector();
+}
+$("#filterSeg").addEventListener("click",e=>{const b=e.target.closest("button"); if(b){S.filter=b.dataset.f; renderReview();}});
+$("#grid").addEventListener("click",e=>{const b=e.target.closest(".cell"); if(b){ S.sel={r:+b.dataset.r,f:b.dataset.f}; S.src=0; S.editing=false; renderReview(); if(window.innerWidth<=1100) $("#insp").scrollIntoView({behavior:reduced?"auto":"smooth",block:"start"}); }});
+
+function sourcesOf(cell){
+  const list=[{doc:cell.doc,k:cell.k,role:"Value"}];
+  (cell.alts||[]).forEach(a=>list.push({doc:a.doc,k:a.k,role:"Alternative"}));
+  (cell.also||[]).forEach(a=>list.push({doc:a.doc,k:a.k,role:"Corroborates"}));
+  return list;
+}
+function renderInspector(){
+  const {r,f}=S.sel, rec=RECORDS[r], cell=rec.f[f], def=fieldDef(f), s=status(cell);
+  const pill = {auto:'<span class="chip good">Auto-approved</span>',review:'<span class="chip warn">Needs review</span>',conflict:'<span class="chip crit">Sources disagree</span>',approved:'<span class="chip accent">Approved by you</span>'}[s];
+  const srcs=sourcesOf(cell); if(S.src>=srcs.length) S.src=0;
+  const cur=srcs[S.src];
+  const meterColor = s==="conflict"?"var(--crit)":s==="review"?"var(--warn)":s==="approved"?"var(--accent)":"var(--good)";
+  const checks = checksFor(r,f,cell.v).map(c=>`<li class="${c[0]==="ok"?"ok":c[0]==="bad"?"bad":"wn"}">${c[0]==="ok"?ICON.ok:c[0]==="bad"?ICON.bad:ICON.warn}<span style="color:var(--ink)">${esc(c[1])}</span></li>`).join("");
+  const alts = (cell.alts||[]).map((a,ai)=>{
+    const ac = checksFor(r,f,a.v).filter(x=>x[0]==="bad");
+    return `<div class="alt"><div><b>${esc(fmtVal(f,a.v))}</b><small>${esc(DOCS[a.doc].name)} · confidence ${a.c.toFixed(2)}${ac.length?` · <span class="bad">${esc(ac[0][1])}</span>`:""}</small></div>
+      <button type="button" class="btn" data-alt="${ai}">Use this value</button></div>`;}).join("");
+  $("#insp").innerHTML = `
+  <div class="insp-head"><div style="min-width:0"><div class="fname">${f} · ${esc(rec.id)}</div><div class="insp-val">${esc(fmtVal(f,cell.v))}</div></div>${pill}</div>
+  <div style="padding:10px 16px 12px;border-bottom:1px solid var(--line)">
+    <div class="meter" role="img" aria-label="Confidence ${cell.c.toFixed(2)} against threshold ${S.threshold.toFixed(2)}"><i style="width:${cell.c*100}%;background:${meterColor}"></i><span class="th" style="left:${S.threshold*100}%"></span></div>
+    <div class="meter-lbl"><span>Confidence <b class="num" style="color:var(--ink)">${cell.c.toFixed(2)}</b> · threshold ${S.threshold.toFixed(2)}</span><span>${esc(cell.ext)}</span></div>
+  </div>
+  <div class="srctabs" role="tablist" aria-label="Sources for this field">${srcs.map((x,i)=>`<button type="button" class="srctab" role="tab" aria-selected="${i===S.src}" data-src="${i}">${esc(DOCS[x.doc].name)}<em>${x.role}</em></button>`).join("")}</div>
+  <div class="viewer" id="viewer">${RENDER[cur.doc]()}</div>
+  <div class="ev-body">
+    <div class="quote"><small>Evidence on ${esc(DOCS[cell.doc].name)} · ${DOCS[cell.doc].kind==="sheet"?"locator Sheet1!A1:G7":"page 1, region cited"}</small>${esc(cell.quote)}</div>
+    ${cell.note?`<div class="note">${esc(cell.note)}</div>`:""}
+    <div><h3 style="font-size:14px;margin-bottom:6px">Checks</h3><ul class="checks">${checks}</ul></div>
+    ${alts?`<div><h3 style="font-size:14px;margin-bottom:6px">${cell.conflict?"Competing values":"Other values seen"}</h3><div class="alts">${alts}</div></div>`:""}
+    <div class="muted" style="font-size:12.5px">Field rule: <span class="mono">${esc(def.rule||"none")}</span> · merge policy <span class="mono">${def.policy}</span></div>
+  </div>
+  <div class="actions">${S.editing?`<div class="edit-row" style="flex:1"><label class="sr" for="editIn">New value for ${f}</label><input id="editIn" value="${esc(String(cell.v))}"><button type="button" class="btn primary" id="saveEdit">Save</button><button type="button" class="btn" id="cancelEdit">Cancel</button></div>`:
+    `${s==="approved"?`<button type="button" class="btn" id="undo">Undo approval</button>`:`<button type="button" class="btn primary" id="approve">${ICON.ok} Approve</button>`}
+     <button type="button" class="btn" id="edit">Edit value</button><span class="spacer" style="flex:1"></span>
+     <button type="button" class="btn ghost" id="next">Next issue →</button>`}</div>`;
+
+  const vw=$("#viewer");
+  const target = vw.querySelector(`[data-k="${cur.k}"]`);
+  if(target){ target.classList.add(cur.role==="Alternative"?"hl-alt":"hl");
+    requestAnimationFrame(()=>{ const vr=vw.getBoundingClientRect(), tr=target.getBoundingClientRect(); vw.scrollTop += (tr.top-vr.top) - vw.clientHeight/2 + tr.height/2; }); }
+
+  $("#insp").querySelectorAll("[data-src]").forEach(b=>b.addEventListener("click",()=>{S.src=+b.dataset.src; renderInspector();}));
+  $("#insp").querySelectorAll("[data-alt]").forEach(b=>b.addEventListener("click",()=>{
+    const a=cell.alts[+b.dataset.alt]; const old={v:cell.v,c:cell.c,doc:cell.doc,k:cell.k,quote:cell.quote,ext:cell.ext};
+    Object.assign(cell,{v:a.v,c:a.c,doc:a.doc,k:a.k,quote:a.quote,ext:a.ext}); cell.alts[+b.dataset.alt]=old;
+    cell.approved=true; cell.conflict=false; S.src=0; toast(`${f} set to ${fmtVal(f,a.v)} from ${DOCS[a.doc].name}`); refresh(); }));
+  const ap=$("#approve"); if(ap) ap.addEventListener("click",()=>{ cell.approved=true; if(cell.conflict) cell.conflict=false; toast(`Approved ${f} for ${rec.id}`); const nx=nextIssue(); if(nx){S.sel=nx; S.src=0;} refresh(); });
+  const un=$("#undo"); if(un) un.addEventListener("click",()=>{ cell.approved=false; if(cell.alts&&cell.orig===484095&&cell.v===484095&&f==="total") cell.conflict=true; refresh(); });
+  const ed=$("#edit"); if(ed) ed.addEventListener("click",()=>{ S.editing=true; renderInspector(); const i=$("#editIn"); i.focus(); i.select(); });
+  const ce=$("#cancelEdit"); if(ce) ce.addEventListener("click",()=>{ S.editing=false; renderInspector(); });
+  const se=$("#saveEdit"); if(se){ const save=()=>{ let v=$("#editIn").value.trim(); if(def.type==="currency"){ const nv=Number(v.replace(/[₹,\s]/g,"")); if(isNaN(nv)){ toast("Enter a number, for example 484095"); return; } v=nv; }
+      cell.v=v; cell.c=1; cell.ext="Edited by reviewer"; cell.approved=true; cell.conflict=false; S.editing=false; toast(`Saved. The correction is stored as an eval case.`); refresh(); };
+    se.addEventListener("click",save); $("#editIn").addEventListener("keydown",e=>{ if(e.key==="Enter") save(); if(e.key==="Escape"){S.editing=false; renderInspector();} }); }
+  const nx=$("#next"); if(nx) nx.addEventListener("click",()=>{ const x=nextIssue(); if(x){ S.sel=x; S.src=0; renderReview(); } else toast("Nothing left to review."); });
+}
+function refresh(){ renderReview(); renderSteps(); }
+
+/* ---------- Export view ---------- */
+function exportRows(){
+  return RECORDS.map(r=>{ const o={}; FIELDS.forEach(f=>{ o[f.key]=r.f[f.key].v; }); return o; });
+}
+function renderExport(){
+  document.querySelectorAll("#fmtSeg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.x===S.fmt)));
+  const lin=$("#optLineage").checked, stc=$("#optStatus").checked, n=counts(), open=n.rev+n.conf;
+  $("#exportNote").innerHTML = open ? `<div class="note" style="background:var(--warn-soft)">${open} field${open===1?" is":"s are"} still in review. ${open===1?"It exports":"They export"} with status <span class="mono">needs_review</span>. <button type="button" class="btn" id="backRev" style="margin-top:8px">Finish review</button></div>`
+    : `<div class="note" style="background:var(--good-soft)">All fields approved.</div>`;
+  const br=$("#backRev"); if(br) br.addEventListener("click",()=>go("review"));
+  const rows=exportRows(); let out="", title="";
+  if(S.fmt==="json"){
+    title="output.json";
+    const data = RECORDS.map(r=>{ const o={}; FIELDS.forEach(f=>{ const c=r.f[f.key]; o[f.key]=c.v; });
+      if(stc){ const open=FIELDS.filter(f=>["review","conflict"].includes(status(r.f[f.key]))).map(f=>f.key); o._status = open.length?{needs_review:open}:"approved"; }
+      if(lin){ o._lineage={}; FIELDS.forEach(f=>{ const c=r.f[f.key]; o._lineage[f.key]={source:DOCS[c.doc].name,quote:c.quote,confidence:+c.c.toFixed(2),extractor:c.ext}; }); }
+      return o; });
+    out=`<pre class="code">${esc(JSON.stringify({schema:"AP invoice reconciliation",version:3,records:data},null,2))}</pre>`;
+  } else if(S.fmt==="csv"){
+    title="output.csv";
+    const cols=FIELDS.map(f=>f.key).concat(stc?["review_status"]:[]).concat(lin?["lineage_file"]:[]);
+    const q=v=>{const s=String(v); return /[",]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;};
+    const lines=[cols.join(",")].concat(RECORDS.map(r=>{ const open=FIELDS.filter(f=>["review","conflict"].includes(status(r.f[f.key]))).length;
+      return FIELDS.map(f=>q(r.f[f.key].v)).concat(stc?[open?"needs_review":"approved"]:[]).concat(lin?["lineage.json"]:[]).join(","); }));
+    out=`<pre class="code">${esc(lines.join("\n"))}</pre>`;
+  } else if(S.fmt==="xlsx"){
+    title="output.xlsx · preview";
+    const letters="ABCDEFGHIJKL";
+    out=`<div class="scroll-x"><table class="xl"><thead><tr><th class="rn"></th>${FIELDS.map((f,i)=>`<th>${letters[i]}</th>`).join("")}</tr></thead><tbody>
+      <tr><td class="rn">1</td>${FIELDS.map(f=>`<td><b>${f.key}</b></td>`).join("")}</tr>
+      ${RECORDS.map((r,ri)=>`<tr><td class="rn">${ri+2}</td>${FIELDS.map(f=>{const c=r.f[f.key], s=status(c); return `<td class="${stc&&(s==="review"||s==="conflict")?"flag":""}" style="${typeof c.v==="number"?"text-align:right":""}">${esc(typeof c.v==="number"?inr(c.v):c.v)}</td>`;}).join("")}</tr>`).join("")}
+      </tbody></table></div><p class="muted" style="font-size:13px;margin:10px 0 0">In the product this downloads as a workbook with a second sheet, <span class="mono">lineage</span>, and highlighted review cells.</p>`;
+  } else {
+    title="API · start the same job";
+    out=`<pre class="code">${esc(`curl -X POST https://api.formwork.example/v1/jobs \\
+  -H "Authorization: Bearer $FORMWORK_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "schema_id": "sch_ap_recon",
+    "schema_version": 3,
+    "file_ids": ["fil_po_q3", "fil_inv2041", "fil_inv2042",
+                 "fil_kal0917", "fil_grn_sep", "fil_kal_mail", "fil_hb7731"],
+    "options": {
+      "auto_approve_threshold": ${S.threshold.toFixed(2)},
+      "budget_usd": 1.00,
+      "webhook_url": "https://erp.northfield.example/hooks/formwork"
+    }
+  }'
+
+# then
+curl https://api.formwork.example/v1/jobs/job_q3_recon/result?format=${lin?"json":"csv"} \\
+  -H "Authorization: Bearer $FORMWORK_KEY"`)}</pre>`;
+  }
+  $("#prevTitle").textContent=title; $("#preview").innerHTML=out;
+}
+$("#fmtSeg").addEventListener("click",e=>{const b=e.target.closest("button"); if(b){S.fmt=b.dataset.x; renderExport();}});
+$("#optLineage").addEventListener("change",renderExport);
+$("#optStatus").addEventListener("change",renderExport);
+$("#copyBtn").addEventListener("click",async()=>{
+  const t=$("#preview").innerText;
+  try{ await navigator.clipboard.writeText(t); toast("Copied to clipboard"); }catch(_){ toast("Copy was blocked here. Select the text and copy it instead."); }
+});
+
+/* ---------- Toast + render ---------- */
+function toast(msg){ const d=document.createElement("div"); d.className="toast"; d.textContent=msg; $("#toasts").appendChild(d); setTimeout(()=>d.remove(),3200); }
+function render(){
+  VIEWS.forEach(v=>$("#v-"+v).classList.toggle("on",v===S.view));
+  renderSteps();
+  if(S.view==="schema") renderSchema();
+  if(S.view==="sources") renderSources();
+  if(S.view==="run") renderRun();
+  if(S.view==="review") renderReview();
+  if(S.view==="export") renderExport();
+}
+function fromHash(){ const h=(location.hash||"").replace("#",""); S.view = VIEWS.includes(h)?h:"review"; render(); }
+window.addEventListener("hashchange",fromHash);
+fromHash();
+})();
+</script>
+</body>
+</html>

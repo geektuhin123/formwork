@@ -1,0 +1,15 @@
+{
+  "_note": "Hand-built in the Messages API response shape (no API key was available to record a live call). Re-record with scripts/record_cassette.py once ANTHROPIC_API_KEY is set.",
+  "response": {
+    "id": "msg_cassette_0001",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-haiku-5-5",
+    "content": [
+      {"type": "tool_use", "id": "toolu_cassette_0001", "name": "classify_document", "input": {"doc_class": "invoice", "confidence": 0.97}}
+    ],
+    "stop_reason": "tool_use",
+    "stop_sequence": null,
+    "usage": {"input_tokens": 812, "output_tokens": 24, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}
+  }
+}

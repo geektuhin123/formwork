@@ -1,0 +1,97 @@
+[project]
+name = "formwork"
+version = "0.1.0"
+description = "Schema-driven document transformation: target format + unstructured sources -> one cited dataset."
+requires-python = ">=3.12"
+dependencies = [
+  "formwork-core",
+  "formwork-schema-compiler",
+  "formwork-ingest",
+  "formwork-retrieval",
+  "formwork-router",
+  "formwork-extract",
+  "formwork-merge",
+  "formwork-validate",
+  "formwork-output",
+  "formwork-feedback",
+  "formwork-pipeline",
+  "formwork-testkit",
+  "formwork-sdk",
+  "formwork-api",
+  "formwork-worker",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/api", "apps/worker"]
+
+[tool.uv.sources]
+formwork-core = { workspace = true }
+formwork-schema-compiler = { workspace = true }
+formwork-ingest = { workspace = true }
+formwork-retrieval = { workspace = true }
+formwork-router = { workspace = true }
+formwork-extract = { workspace = true }
+formwork-merge = { workspace = true }
+formwork-validate = { workspace = true }
+formwork-output = { workspace = true }
+formwork-feedback = { workspace = true }
+formwork-pipeline = { workspace = true }
+formwork-testkit = { workspace = true }
+formwork-sdk = { workspace = true }
+formwork-api = { workspace = true }
+formwork-worker = { workspace = true }
+
+[dependency-groups]
+dev = [
+  "pytest>=8.2",
+  "pytest-asyncio>=0.23",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "types-python-dateutil",
+  "types-openpyxl",
+  "pandas-stubs",
+  "types-boto3",
+  "playwright>=1.45",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q --import-mode=importlib -p no:cacheprovider"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["packages", "apps/api", "apps/worker", "evals/tests"]
+markers = [
+  "db: needs a Postgres server (local binaries or FORMWORK_TEST_DATABASE_URL)",
+  "redis: needs redis-server",
+  "slow: slow test",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = ["apps/web", "migrations/versions/__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S", "ASYNC", "SIM", "RUF"]
+ignore = ["E501", "RUF001", "RUF002", "RUF003", "S101", "S311", "RUF012", "B008", "SIM108", "S603", "S607"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S", "B011"]
+"evals/**" = ["S"]
+"migrations/**" = ["S608"]
+"conftest.py" = ["S"]
+"packages/testkit/**" = ["S"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = ['/tests/', 'apps/web/']
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["fitz.*", "pymupdf.*", "pytesseract.*", "simpleeval.*", "docx.*", "reportlab.*", "arq.*", "cv2.*", "rapidfuzz.*", "boto3.*", "botocore.*"]
+ignore_missing_imports = true
+follow_untyped_imports = true

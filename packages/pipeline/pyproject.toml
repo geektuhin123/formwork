@@ -1,0 +1,36 @@
+[project]
+name = "formwork-pipeline"
+version = "0.1.0"
+description = "Formwork pipeline package"
+requires-python = ">=3.12"
+dependencies = [
+  "formwork-core",
+  "formwork-schema-compiler",
+  "formwork-ingest",
+  "formwork-retrieval",
+  "formwork-router",
+  "formwork-extract",
+  "formwork-merge",
+  "formwork-validate",
+  "formwork-output",
+  "formwork-feedback",
+]
+
+[tool.uv.sources]
+formwork-core = { workspace = true }
+formwork-schema-compiler = { workspace = true }
+formwork-ingest = { workspace = true }
+formwork-retrieval = { workspace = true }
+formwork-router = { workspace = true }
+formwork-extract = { workspace = true }
+formwork-merge = { workspace = true }
+formwork-validate = { workspace = true }
+formwork-output = { workspace = true }
+formwork-feedback = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["formwork_pipeline"]
