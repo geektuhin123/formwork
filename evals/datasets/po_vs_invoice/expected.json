@@ -1,0 +1,288 @@
+{
+ "po-2026-0200": {
+  "record": {
+   "po_number": "PO-2026-0200",
+   "vendor_name": "Shree Balaji Traders Pvt Ltd",
+   "po_date": "2026-09-02",
+   "invoice_number": "INV-7000",
+   "invoice_date": "2026-09-24",
+   "grn_number": "GRN-5000",
+   "ordered_qty": 50,
+   "received_qty": 50,
+   "po_value": 625.0,
+   "invoice_subtotal": 625.0,
+   "invoice_total": 737.5
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0201": {
+  "record": {
+   "po_number": "PO-2026-0201",
+   "vendor_name": "Kaveri Industrial Supplies",
+   "po_date": "2026-08-16",
+   "invoice_number": "INV-7001",
+   "invoice_date": "2026-09-10",
+   "grn_number": "GRN-5001",
+   "ordered_qty": 110,
+   "received_qty": 110,
+   "po_value": 5280.0,
+   "invoice_subtotal": 5491.2,
+   "invoice_total": 6479.62
+  },
+  "seeded": [
+   "amount_mismatch"
+  ],
+  "must_flag": [
+   "invoice_subtotal"
+  ]
+ },
+ "po-2026-0202": {
+  "record": {
+   "po_number": "PO-2026-0202",
+   "vendor_name": "Himalaya Packaging LLP",
+   "po_date": "2026-08-30",
+   "invoice_number": "INV-7002",
+   "invoice_date": "2026-09-18",
+   "grn_number": "GRN-5002",
+   "ordered_qty": 140,
+   "received_qty": 140,
+   "po_value": 100800.0,
+   "invoice_subtotal": 100800.0,
+   "invoice_total": 118944.0
+  },
+  "seeded": [
+   "vendor_spelling"
+  ],
+  "must_flag": []
+ },
+ "po-2026-0203": {
+  "record": {
+   "po_number": "PO-2026-0203",
+   "vendor_name": "Deccan Fasteners Pvt Ltd",
+   "po_date": "2026-08-08",
+   "invoice_number": "INV-7003",
+   "invoice_date": "2026-08-29",
+   "grn_number": "GRN-5003",
+   "ordered_qty": 250,
+   "received_qty": 220,
+   "po_value": 35500.0,
+   "invoice_subtotal": 35500.0,
+   "invoice_total": 41890.0
+  },
+  "seeded": [
+   "short_shipment"
+  ],
+  "must_flag": [
+   "received_qty"
+  ]
+ },
+ "po-2026-0204": {
+  "record": {
+   "po_number": "PO-2026-0204",
+   "vendor_name": "Sundaram Electricals",
+   "po_date": "2026-08-03",
+   "invoice_number": "INV-7004",
+   "invoice_date": "2026-08-20",
+   "grn_number": "GRN-5004",
+   "ordered_qty": 240,
+   "received_qty": 240,
+   "po_value": 23160.0,
+   "invoice_subtotal": 23160.0,
+   "invoice_total": 27328.8
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0205": {
+  "record": {
+   "po_number": "PO-2026-0205",
+   "vendor_name": "Ganga Steel Corporation",
+   "po_date": "2026-08-13",
+   "invoice_number": "INV-7005",
+   "invoice_date": "2026-09-04",
+   "grn_number": "GRN-5005",
+   "ordered_qty": 210,
+   "received_qty": 210,
+   "po_value": 65100.0,
+   "invoice_subtotal": 65100.0,
+   "invoice_total": 76818.0
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0206": {
+  "record": {
+   "po_number": "PO-2026-0206",
+   "vendor_name": "Malabar Chemicals Pvt Ltd",
+   "po_date": "2026-08-17",
+   "invoice_number": "INV-7006",
+   "invoice_date": "2026-09-06",
+   "grn_number": "GRN-5006",
+   "ordered_qty": 290,
+   "received_qty": 290,
+   "po_value": 17762.5,
+   "invoice_subtotal": 18473.0,
+   "invoice_total": 21798.14
+  },
+  "seeded": [
+   "amount_mismatch",
+   "vendor_spelling"
+  ],
+  "must_flag": [
+   "invoice_subtotal"
+  ]
+ },
+ "po-2026-0207": {
+  "record": {
+   "po_number": "PO-2026-0207",
+   "vendor_name": "Narmada Polymers Ltd",
+   "po_date": "2026-09-10",
+   "invoice_number": "INV-7007",
+   "invoice_date": "2026-09-24",
+   "grn_number": "GRN-5007",
+   "ordered_qty": 140,
+   "received_qty": 140,
+   "po_value": 63700.0,
+   "invoice_subtotal": 63700.0,
+   "invoice_total": 75166.0
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0208": {
+  "record": {
+   "po_number": "PO-2026-0208",
+   "vendor_name": "Shree Balaji Traders Pvt Ltd",
+   "po_date": "2026-08-07",
+   "invoice_number": "INV-7008",
+   "invoice_date": "2026-08-23",
+   "grn_number": "GRN-5008",
+   "ordered_qty": 170,
+   "received_qty": 160,
+   "po_value": 14960.0,
+   "invoice_subtotal": 14960.0,
+   "invoice_total": 17652.8
+  },
+  "seeded": [
+   "short_shipment"
+  ],
+  "must_flag": [
+   "received_qty"
+  ]
+ },
+ "po-2026-0209": {
+  "record": {
+   "po_number": "PO-2026-0209",
+   "vendor_name": "Kaveri Industrial Supplies",
+   "po_date": "2026-08-16",
+   "invoice_number": "INV-7009",
+   "invoice_date": "2026-09-06",
+   "grn_number": "GRN-5009",
+   "ordered_qty": 70,
+   "received_qty": 70,
+   "po_value": 1032.5,
+   "invoice_subtotal": 1032.5,
+   "invoice_total": 1218.34
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0210": {
+  "record": {
+   "po_number": "PO-2026-0210",
+   "vendor_name": "Himalaya Packaging LLP",
+   "po_date": "2026-08-19",
+   "invoice_number": "INV-7010",
+   "invoice_date": "2026-09-02",
+   "grn_number": "GRN-5010",
+   "ordered_qty": 170,
+   "received_qty": 170,
+   "po_value": 2125.0,
+   "invoice_subtotal": 2125.0,
+   "invoice_total": 2507.5
+  },
+  "seeded": [
+   "vendor_spelling"
+  ],
+  "must_flag": []
+ },
+ "po-2026-0211": {
+  "record": {
+   "po_number": "PO-2026-0211",
+   "vendor_name": "Deccan Fasteners Pvt Ltd",
+   "po_date": "2026-08-11",
+   "invoice_number": "INV-7011",
+   "invoice_date": "2026-08-23",
+   "grn_number": "GRN-5011",
+   "ordered_qty": 130,
+   "received_qty": 130,
+   "po_value": 6240.0,
+   "invoice_subtotal": 6489.6,
+   "invoice_total": 7657.72
+  },
+  "seeded": [
+   "amount_mismatch"
+  ],
+  "must_flag": [
+   "invoice_subtotal"
+  ]
+ },
+ "po-2026-0212": {
+  "record": {
+   "po_number": "PO-2026-0212",
+   "vendor_name": "Sundaram Electricals",
+   "po_date": "2026-08-07",
+   "invoice_number": "INV-7012",
+   "invoice_date": "2026-08-17",
+   "grn_number": "GRN-5012",
+   "ordered_qty": 110,
+   "received_qty": 110,
+   "po_value": 79200.0,
+   "invoice_subtotal": 79200.0,
+   "invoice_total": 93456.0
+  },
+  "seeded": [],
+  "must_flag": []
+ },
+ "po-2026-0213": {
+  "record": {
+   "po_number": "PO-2026-0213",
+   "vendor_name": "Ganga Steel Corporation",
+   "po_date": "2026-09-09",
+   "invoice_number": "INV-7013",
+   "invoice_date": "2026-10-03",
+   "grn_number": "GRN-5013",
+   "ordered_qty": 90,
+   "received_qty": 60,
+   "po_value": 12780.0,
+   "invoice_subtotal": 12780.0,
+   "invoice_total": 15080.4
+  },
+  "seeded": [
+   "short_shipment"
+  ],
+  "must_flag": [
+   "received_qty"
+  ]
+ },
+ "po-2026-0214": {
+  "record": {
+   "po_number": "PO-2026-0214",
+   "vendor_name": "Malabar Chemicals Pvt Ltd",
+   "po_date": "2026-08-20",
+   "invoice_number": "INV-7014",
+   "invoice_date": "2026-09-04",
+   "grn_number": "GRN-5014",
+   "ordered_qty": 100,
+   "received_qty": 100,
+   "po_value": 9650.0,
+   "invoice_subtotal": 9650.0,
+   "invoice_total": 11387.0
+  },
+  "seeded": [
+   "vendor_spelling"
+  ],
+  "must_flag": []
+ }
+}

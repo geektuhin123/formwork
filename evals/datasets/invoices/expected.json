@@ -1,0 +1,817 @@
+{
+ "INV-2026-1000": {
+  "source": "invoice_00.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1000",
+   "invoice_date": "2026-10-22",
+   "vendor_name": "Shree Balaji Traders Pvt Ltd",
+   "vendor_gstin": "27AABCS1429B1Z6",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0100",
+   "currency": "INR",
+   "subtotal": 58957.5,
+   "cgst": 5306.18,
+   "sgst": 5306.18,
+   "total_amount": 69569.86,
+   "line_items": [
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 175,
+     "unit_price": 12.5,
+     "amount": 2187.5
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 25,
+     "unit_price": 310.0,
+     "amount": 7750.0
+    },
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 185,
+     "unit_price": 142.0,
+     "amount": 26270.0
+    },
+    {
+     "description": "Epoxy Adhesive 1kg",
+     "hsn_code": "3506",
+     "quantity": 50,
+     "unit_price": 455.0,
+     "amount": 22750.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1001": {
+  "source": "invoice_01.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1001",
+   "invoice_date": "2026-10-17",
+   "vendor_name": "Kaveri Industrial Supplies",
+   "vendor_gstin": "29AAGCK4421M1ZP",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0101",
+   "currency": "INR",
+   "subtotal": 17343.75,
+   "cgst": 1560.94,
+   "sgst": 1560.94,
+   "total_amount": 20465.63,
+   "line_items": [
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 50,
+     "unit_price": 310.0,
+     "amount": 15500.0
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 125,
+     "unit_price": 14.75,
+     "amount": 1843.75
+    }
+   ]
+  }
+ },
+ "INV-2026-1002": {
+  "source": "invoice_02.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1002",
+   "invoice_date": "2026-10-27",
+   "vendor_name": "Himalaya Packaging LLP",
+   "vendor_gstin": "06AAFFH7310K1Z3",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0102",
+   "currency": "INR",
+   "subtotal": 10577.5,
+   "cgst": 951.97,
+   "sgst": 951.97,
+   "total_amount": 12481.44,
+   "line_items": [
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 150,
+     "unit_price": 48.0,
+     "amount": 7200.0
+    },
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 35,
+     "unit_price": 96.5,
+     "amount": 3377.5
+    }
+   ]
+  }
+ },
+ "INV-2026-1003": {
+  "source": "invoice_03_scan.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1003",
+   "invoice_date": "2026-10-15",
+   "vendor_name": "Deccan Fasteners Pvt Ltd",
+   "vendor_gstin": "36AACCD5521L1ZV",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0103",
+   "currency": "INR",
+   "subtotal": 49465.0,
+   "cgst": 4451.85,
+   "sgst": 4451.85,
+   "total_amount": 58368.7,
+   "line_items": [
+    {
+     "description": "Epoxy Adhesive 1kg",
+     "hsn_code": "3506",
+     "quantity": 95,
+     "unit_price": 455.0,
+     "amount": 43225.0
+    },
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 130,
+     "unit_price": 48.0,
+     "amount": 6240.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1004": {
+  "source": "invoice_04.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1004",
+   "invoice_date": "2026-09-05",
+   "vendor_name": "Sundaram Electricals",
+   "vendor_gstin": "33AAKFS9087Q1Z1",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0104",
+   "currency": "INR",
+   "subtotal": 21672.5,
+   "cgst": 1950.52,
+   "sgst": 1950.52,
+   "total_amount": 25573.54,
+   "line_items": [
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 70,
+     "unit_price": 14.75,
+     "amount": 1032.5
+    },
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 75,
+     "unit_price": 48.0,
+     "amount": 3600.0
+    },
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 120,
+     "unit_price": 142.0,
+     "amount": 17040.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1005": {
+  "source": "invoice_05.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1005",
+   "invoice_date": "2026-09-20",
+   "vendor_name": "Ganga Steel Corporation",
+   "vendor_gstin": "09AAECG3312N1Z8",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0105",
+   "currency": "INR",
+   "subtotal": 92602.5,
+   "cgst": 8334.23,
+   "sgst": 8334.23,
+   "total_amount": 109270.96,
+   "line_items": [
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 45,
+     "unit_price": 88.0,
+     "amount": 3960.0
+    },
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 95,
+     "unit_price": 96.5,
+     "amount": 9167.5
+    },
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 180,
+     "unit_price": 12.5,
+     "amount": 2250.0
+    },
+    {
+     "description": "Epoxy Adhesive 1kg",
+     "hsn_code": "3506",
+     "quantity": 105,
+     "unit_price": 455.0,
+     "amount": 47775.0
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 95,
+     "unit_price": 310.0,
+     "amount": 29450.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1006": {
+  "source": "invoice_06.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1006",
+   "invoice_date": "2026-10-24",
+   "vendor_name": "Malabar Chemicals Pvt Ltd",
+   "vendor_gstin": "32AAFCM6190R1ZT",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0106",
+   "currency": "INR",
+   "subtotal": 18516.25,
+   "cgst": 1666.46,
+   "sgst": 1666.46,
+   "total_amount": 21849.17,
+   "line_items": [
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 170,
+     "unit_price": 12.5,
+     "amount": 2125.0
+    },
+    {
+     "description": "MS Angle 40x40x5",
+     "hsn_code": "7216",
+     "quantity": 170,
+     "unit_price": 61.25,
+     "amount": 10412.5
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 145,
+     "unit_price": 14.75,
+     "amount": 2138.75
+    },
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 80,
+     "unit_price": 48.0,
+     "amount": 3840.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1007": {
+  "source": "invoice_07_scan.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1007",
+   "invoice_date": "2026-10-02",
+   "vendor_name": "Narmada Polymers Ltd",
+   "vendor_gstin": "24AABCN8745P1ZC",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0107",
+   "currency": "INR",
+   "subtotal": 136460.0,
+   "cgst": 12281.4,
+   "sgst": 12281.4,
+   "total_amount": 161022.8,
+   "line_items": [
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 200,
+     "unit_price": 96.5,
+     "amount": 19300.0
+    },
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 55,
+     "unit_price": 88.0,
+     "amount": 4840.0
+    },
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 165,
+     "unit_price": 48.0,
+     "amount": 7920.0
+    },
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 145,
+     "unit_price": 720.0,
+     "amount": 104400.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1008": {
+  "source": "invoice_08.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1008",
+   "invoice_date": "2026-09-12",
+   "vendor_name": "Shree Balaji Traders Pvt Ltd",
+   "vendor_gstin": "27AABCS1429B1Z6",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0108",
+   "currency": "INR",
+   "subtotal": 42496.25,
+   "cgst": 3824.66,
+   "sgst": 3824.66,
+   "total_amount": 50145.57,
+   "line_items": [
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 150,
+     "unit_price": 96.5,
+     "amount": 14475.0
+    },
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 45,
+     "unit_price": 88.0,
+     "amount": 3960.0
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 55,
+     "unit_price": 14.75,
+     "amount": 811.25
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 75,
+     "unit_price": 310.0,
+     "amount": 23250.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1009": {
+  "source": "invoice_09.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1009",
+   "invoice_date": "2026-09-09",
+   "vendor_name": "Kaveri Industrial Supplies",
+   "vendor_gstin": "29AAGCK4421M1ZP",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0109",
+   "currency": "INR",
+   "subtotal": 22226.25,
+   "cgst": 2000.36,
+   "sgst": 2000.36,
+   "total_amount": 26226.97,
+   "line_items": [
+    {
+     "description": "MS Angle 40x40x5",
+     "hsn_code": "7216",
+     "quantity": 140,
+     "unit_price": 61.25,
+     "amount": 8575.0
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 135,
+     "unit_price": 14.75,
+     "amount": 1991.25
+    },
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 115,
+     "unit_price": 96.5,
+     "amount": 11097.5
+    },
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 45,
+     "unit_price": 12.5,
+     "amount": 562.5
+    }
+   ]
+  }
+ },
+ "INV-2026-1010": {
+  "source": "invoice_10.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1010",
+   "invoice_date": "2026-09-05",
+   "vendor_name": "Himalaya Packaging LLP",
+   "vendor_gstin": "06AAFFH7310K1Z3",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0110",
+   "currency": "INR",
+   "subtotal": 36312.5,
+   "cgst": 3268.12,
+   "sgst": 3268.12,
+   "total_amount": 42848.74,
+   "line_items": [
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 150,
+     "unit_price": 14.75,
+     "amount": 2212.5
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 110,
+     "unit_price": 310.0,
+     "amount": 34100.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1011": {
+  "source": "invoice_11_scan.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1011",
+   "invoice_date": "2026-09-23",
+   "vendor_name": "Deccan Fasteners Pvt Ltd",
+   "vendor_gstin": "36AACCD5521L1ZV",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0111",
+   "currency": "INR",
+   "subtotal": 34373.75,
+   "cgst": 3093.64,
+   "sgst": 3093.64,
+   "total_amount": 40561.03,
+   "line_items": [
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 140,
+     "unit_price": 142.0,
+     "amount": 19880.0
+    },
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 15,
+     "unit_price": 720.0,
+     "amount": 10800.0
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 185,
+     "unit_price": 14.75,
+     "amount": 2728.75
+    },
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 10,
+     "unit_price": 96.5,
+     "amount": 965.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1012": {
+  "source": "invoice_12.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1012",
+   "invoice_date": "2026-09-17",
+   "vendor_name": "Sundaram Electricals",
+   "vendor_gstin": "33AAKFS9087Q1Z1",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0112",
+   "currency": "INR",
+   "subtotal": 155165.0,
+   "cgst": 13964.85,
+   "sgst": 13964.85,
+   "total_amount": 183094.7,
+   "line_items": [
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 200,
+     "unit_price": 142.0,
+     "amount": 28400.0
+    },
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 80,
+     "unit_price": 720.0,
+     "amount": 57600.0
+    },
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 55,
+     "unit_price": 88.0,
+     "amount": 4840.0
+    },
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 50,
+     "unit_price": 12.5,
+     "amount": 625.0
+    },
+    {
+     "description": "Epoxy Adhesive 1kg",
+     "hsn_code": "3506",
+     "quantity": 140,
+     "unit_price": 455.0,
+     "amount": 63700.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1013": {
+  "source": "invoice_13.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1013",
+   "invoice_date": "2026-09-02",
+   "vendor_name": "Ganga Steel Corporation",
+   "vendor_gstin": "09AAECG3312N1Z8",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0113",
+   "currency": "INR",
+   "subtotal": 4767.5,
+   "cgst": 429.07,
+   "sgst": 429.07,
+   "total_amount": 5625.64,
+   "line_items": [
+    {
+     "description": "MS Angle 40x40x5",
+     "hsn_code": "7216",
+     "quantity": 70,
+     "unit_price": 61.25,
+     "amount": 4287.5
+    },
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 10,
+     "unit_price": 48.0,
+     "amount": 480.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1014": {
+  "source": "invoice_14.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1014",
+   "invoice_date": "2026-10-05",
+   "vendor_name": "Malabar Chemicals Pvt Ltd",
+   "vendor_gstin": "32AAFCM6190R1ZT",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0114",
+   "currency": "INR",
+   "subtotal": 15325.0,
+   "cgst": 1379.25,
+   "sgst": 1379.25,
+   "total_amount": 18083.5,
+   "line_items": [
+    {
+     "description": "M8 Hex Bolt Zinc Plated",
+     "hsn_code": "7318",
+     "quantity": 90,
+     "unit_price": 12.5,
+     "amount": 1125.0
+    },
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 100,
+     "unit_price": 142.0,
+     "amount": 14200.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1015": {
+  "source": "invoice_15_scan.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1015",
+   "invoice_date": "2026-09-05",
+   "vendor_name": "Narmada Polymers Ltd",
+   "vendor_gstin": "24AABCN8745P1ZC",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0115",
+   "currency": "INR",
+   "subtotal": 167070.0,
+   "cgst": 15036.3,
+   "sgst": 15036.3,
+   "total_amount": 197142.6,
+   "line_items": [
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 195,
+     "unit_price": 720.0,
+     "amount": 140400.0
+    },
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 180,
+     "unit_price": 96.5,
+     "amount": 17370.0
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 30,
+     "unit_price": 310.0,
+     "amount": 9300.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1016": {
+  "source": "invoice_16.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1016",
+   "invoice_date": "2026-10-24",
+   "vendor_name": "Shree Balaji Traders Pvt Ltd",
+   "vendor_gstin": "27AABCS1429B1Z6",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0116",
+   "currency": "INR",
+   "subtotal": 115920.0,
+   "cgst": 10432.8,
+   "sgst": 10432.8,
+   "total_amount": 136785.6,
+   "line_items": [
+    {
+     "description": "Corrugated Box 5 Ply",
+     "hsn_code": "4819",
+     "quantity": 165,
+     "unit_price": 48.0,
+     "amount": 7920.0
+    },
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 150,
+     "unit_price": 720.0,
+     "amount": 108000.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1017": {
+  "source": "invoice_17.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1017",
+   "invoice_date": "2026-10-24",
+   "vendor_name": "Kaveri Industrial Supplies",
+   "vendor_gstin": "29AAGCK4421M1ZP",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0117",
+   "currency": "INR",
+   "subtotal": 90857.5,
+   "cgst": 8177.17,
+   "sgst": 8177.17,
+   "total_amount": 107211.84,
+   "line_items": [
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 50,
+     "unit_price": 720.0,
+     "amount": 36000.0
+    },
+    {
+     "description": "Epoxy Adhesive 1kg",
+     "hsn_code": "3506",
+     "quantity": 55,
+     "unit_price": 455.0,
+     "amount": 25025.0
+    },
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 115,
+     "unit_price": 88.0,
+     "amount": 10120.0
+    },
+    {
+     "description": "ABS Granules Natural",
+     "hsn_code": "3903",
+     "quantity": 100,
+     "unit_price": 142.0,
+     "amount": 14200.0
+    },
+    {
+     "description": "MS Angle 40x40x5",
+     "hsn_code": "7216",
+     "quantity": 90,
+     "unit_price": 61.25,
+     "amount": 5512.5
+    }
+   ]
+  }
+ },
+ "INV-2026-1018": {
+  "source": "invoice_18.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1018",
+   "invoice_date": "2026-09-12",
+   "vendor_name": "Himalaya Packaging LLP",
+   "vendor_gstin": "06AAFFH7310K1Z3",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0118",
+   "currency": "INR",
+   "subtotal": 58348.75,
+   "cgst": 5251.39,
+   "sgst": 5251.39,
+   "total_amount": 68851.53,
+   "line_items": [
+    {
+     "description": "Copper Winding Wire 1.2mm",
+     "hsn_code": "8544",
+     "quantity": 15,
+     "unit_price": 720.0,
+     "amount": 10800.0
+    },
+    {
+     "description": "PVC Insulation Tape",
+     "hsn_code": "3919",
+     "quantity": 105,
+     "unit_price": 14.75,
+     "amount": 1548.75
+    },
+    {
+     "description": "Ball Bearing 6204 ZZ",
+     "hsn_code": "8482",
+     "quantity": 100,
+     "unit_price": 88.0,
+     "amount": 8800.0
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 120,
+     "unit_price": 310.0,
+     "amount": 37200.0
+    }
+   ]
+  }
+ },
+ "INV-2026-1019": {
+  "source": "invoice_19_scan.pdf",
+  "record": {
+   "invoice_number": "INV-2026-1019",
+   "invoice_date": "2026-09-15",
+   "vendor_name": "Deccan Fasteners Pvt Ltd",
+   "vendor_gstin": "36AACCD5521L1ZV",
+   "buyer_name": "Lumina Appliances India Pvt Ltd",
+   "po_number": "PO-2026-0119",
+   "currency": "INR",
+   "subtotal": 27255.0,
+   "cgst": 2452.95,
+   "sgst": 2452.95,
+   "total_amount": 32160.9,
+   "line_items": [
+    {
+     "description": "LED Driver 18W",
+     "hsn_code": "8504",
+     "quantity": 170,
+     "unit_price": 96.5,
+     "amount": 16405.0
+    },
+    {
+     "description": "Stretch Film Roll 23 micron",
+     "hsn_code": "3920",
+     "quantity": 35,
+     "unit_price": 310.0,
+     "amount": 10850.0
+    }
+   ]
+  }
+ }
+}

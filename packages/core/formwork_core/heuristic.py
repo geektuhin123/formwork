@@ -22,21 +22,8 @@ import json
 import re
 from typing import Any
 
-from formwork_core.prompting import parse_blocks
+from formwork_core.prompting import DOC_CLASSES, parse_blocks
 from formwork_core.provider import LLMRequest, ModelTier
-
-DOC_CLASSES = [
-    "invoice",
-    "purchase_order",
-    "goods_receipt",
-    "bank_statement",
-    "credit_note",
-    "delivery_challan",
-    "email",
-    "spreadsheet",
-    "contract",
-    "other",
-]
 
 _CLASS_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("goods_receipt", ("goods receipt", "goods received", "grn")),
@@ -200,7 +187,7 @@ class HeuristicModel:
         allowed = request.tool.input_schema["properties"]["doc_class"].get("enum", DOC_CLASSES)
         best, score = "other", 0
         for cls, hints in _CLASS_HINTS:
-            s = sum(text.count(h) * (3 if text.find(h) < 400 and text.find(h) >= 0 else 1) for h in hints)
+            s = sum(text.count(h) + (6 if 0 <= text.find(h) < 120 else 0) for h in hints)
             if s > score and cls in allowed:
                 best, score = cls, s
         return {"doc_class": best, "confidence": 0.9 if score else 0.4}
@@ -296,7 +283,7 @@ class HeuristicModel:
         return h % 3 if (h / 0xFFFFFFFF) < self.error_rate else None
 
     def _extract(self, request: LLMRequest) -> dict[str, Any]:
-        fields: list[dict[str, Any]] = json.loads(_tag(request.prompt, "fields") or "[]")
+        fields: list[dict[str, Any]] = json.loads(_tag(request.system + request.prompt, "fields") or "[]")
         blocks = parse_blocks(request.prompt)
         if "rows" in request.tool.input_schema.get("properties", {}):
             return {"rows": self._extract_rows(request, fields, blocks)}

@@ -1,0 +1,73 @@
+{
+ "title": "PO reconciliation",
+ "type": "object",
+ "x-entity-key": [
+  "po_number"
+ ],
+ "x-record-grain": "one row per purchase order",
+ "required": [
+  "po_number",
+  "vendor_name",
+  "invoice_number",
+  "ordered_qty",
+  "received_qty",
+  "po_value",
+  "invoice_subtotal"
+ ],
+ "properties": {
+  "po_number": {
+   "type": "string",
+   "description": "Purchase order number shared by all documents, labelled 'PO No', 'Purchase Order' or 'PO Number'"
+  },
+  "vendor_name": {
+   "type": "string",
+   "x-merge-policy": "require_agreement",
+   "description": "Legal name of the supplier, labelled 'Supplier', 'Vendor' or 'Sold By'"
+  },
+  "po_date": {
+   "type": "string",
+   "format": "date",
+   "description": "Date the purchase order was raised, labelled 'PO Date'"
+  },
+  "invoice_number": {
+   "type": "string",
+   "description": "The supplier's invoice number, labelled 'Invoice No', 'Invoice #' or 'Bill No'"
+  },
+  "invoice_date": {
+   "type": "string",
+   "format": "date",
+   "description": "Date the invoice was issued, labelled 'Invoice Date', 'Date' or 'Dated'"
+  },
+  "grn_number": {
+   "type": "string",
+   "description": "Goods receipt note number from the stores, labelled 'GRN No'"
+  },
+  "ordered_qty": {
+   "type": "number",
+   "x-merge-policy": "require_agreement",
+   "description": "Quantity ordered on the purchase order, labelled 'Ordered Qty' or 'Ordered'"
+  },
+  "received_qty": {
+   "type": "number",
+   "description": "Total quantity received at the gate, labelled 'Total Received Qty'",
+   "x-rules": [
+    "received_qty == ordered_qty"
+   ]
+  },
+  "po_value": {
+   "type": "number",
+   "description": "Order value before tax from the PO register, labelled 'PO Value'"
+  },
+  "invoice_subtotal": {
+   "type": "number",
+   "description": "Invoice amount before tax, labelled 'Sub Total', 'Subtotal' or 'Taxable Value'",
+   "x-rules": [
+    "approx(invoice_subtotal, po_value, 1.0)"
+   ]
+  },
+  "invoice_total": {
+   "type": "number",
+   "description": "Invoice amount payable including taxes, labelled 'Grand Total', 'Total Due' or 'Amount Payable'"
+  }
+ }
+}

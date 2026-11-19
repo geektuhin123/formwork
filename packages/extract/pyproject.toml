@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
   "formwork-core",
   "formwork-router",
+  "formwork-ingest",
   "rapidfuzz>=3.9",
   "polars>=1.0",
   "python-dateutil>=2.9",
@@ -14,6 +15,7 @@ dependencies = [
 [tool.uv.sources]
 formwork-core = { workspace = true }
 formwork-router = { workspace = true }
+formwork-ingest = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

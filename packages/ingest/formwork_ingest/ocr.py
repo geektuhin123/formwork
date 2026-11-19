@@ -127,18 +127,21 @@ class _Seg:
 
 
 def _lines(words: list[Word]) -> list[list[Word]]:
+    """Group words into text lines left to right, following each line's own baseline so residual skew cannot split it."""
     lines: list[list[Word]] = []
-    for w in sorted(words, key=lambda w: (w.y0 + w.y1) / 2):
-        cy = (w.y0 + w.y1) / 2
-        if lines:
-            last = lines[-1]
-            ly = statistics.fmean((x.y0 + x.y1) / 2 for x in last)
-            lh = statistics.fmean(x.y1 - x.y0 for x in last)
-            if abs(cy - ly) <= 0.55 * max(lh, w.y1 - w.y0):
-                last.append(w)
-                continue
-        lines.append([w])
-    return [sorted(ln, key=lambda w: w.x0) for ln in lines]
+    for w in sorted(words, key=lambda w: w.x0):
+        cy, h = (w.y0 + w.y1) / 2, w.y1 - w.y0
+        best, best_d = None, 1e9
+        for ln in lines:
+            last = ln[-1]
+            d = abs(cy - (last.y0 + last.y1) / 2)
+            if d <= 0.5 * max(h, last.y1 - last.y0) and d < best_d:
+                best, best_d = ln, d
+        if best is None:
+            lines.append([w])
+        else:
+            best.append(w)
+    return sorted(lines, key=lambda ln: statistics.fmean((x.y0 + x.y1) / 2 for x in ln))
 
 
 def _segments(line: list[Word], gap: float) -> list[_Seg]:
@@ -187,6 +190,7 @@ def layout_blocks(words: list[Word], width: int, height: int, page: int) -> list
 
     i = 0
     loose: list[_Seg] = []
+    loose_lines: list[tuple[int, list[_Seg]]] = []
     while i < len(lines):
         head = lines[i]
         n = len(head)
@@ -209,6 +213,14 @@ def layout_blocks(words: list[Word], width: int, height: int, page: int) -> list
                     ext[k] = (min(ext[k][0], s.x0), max(ext[k][1], s.x1))
                 j += 1
         if len(rows) >= 2:
+            # A header on a shaded band often loses a word to OCR: adopt the line just above if it fits the columns.
+            if loose_lines and loose_lines[-1][0] == i - 1 and max(2, n - 2) <= len(loose_lines[-1][1]) < n:
+                above = loose_lines[-1][1]
+                idx_above = _assign(above, ext)
+                if idx_above is not None:
+                    rows.insert(0, (above, idx_above))
+                    del loose[len(loose) - len(above) :]
+                    loose_lines.pop()
             cells = []
             for ln, idx in rows:
                 row = [""] * n
@@ -229,6 +241,7 @@ def layout_blocks(words: list[Word], width: int, height: int, page: int) -> list
             i += len(rows)
         else:
             loose.extend(head)
+            loose_lines.append((i, head))
             i += 1
 
     # Group remaining fragments into paragraphs: same left edge (or overlapping), small vertical gap.
@@ -246,7 +259,7 @@ def layout_blocks(words: list[Word], width: int, height: int, page: int) -> list
             groups.append([s])
     for g in groups:
         text = "\n".join(s.text for s in g)
-        if conf(g) < 0.35 and len(text) < 6:  # speckle read as text
+        if (conf(g) < 0.35 and len(text) < 6) or (conf(g) < 0.6 and len(text) < 3):  # speckle read as text
             continue
         kv = sum(1 for s in g if ":" in s.text[:45]) >= max(1, len(g) // 2)
         out.append(
