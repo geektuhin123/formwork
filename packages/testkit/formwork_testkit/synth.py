@@ -338,6 +338,9 @@ class Order:
     grn_number: str
     grn_date: date
     seeded: list[str] = field(default_factory=list)  # conflict kinds seeded into this order
+    grn_ordered_qty: int = (
+        0  # what the goods receipt claims was ordered (differs when 'qty_conflict' is seeded)
+    )
 
 
 def make_order(i: int, seed: int = 11) -> Order:
@@ -361,6 +364,10 @@ def make_order(i: int, seed: int = 11) -> Order:
     if i % 4 == 2:
         inv_vendor = vendor.upper().replace("PVT LTD", "PVT. LTD.")
         seeded.append("vendor_spelling")
+    grn_ordered = qty
+    if i % 5 == 4:
+        grn_ordered = qty + 10
+        seeded.append("qty_conflict")
     po_number = f"PO-2026-{200 + i:04d}"
     po_date = date(2026, 8, 1) + timedelta(days=rng.randint(0, 40))
     amount = round(qty * inv_price, 2)
@@ -393,6 +400,7 @@ def make_order(i: int, seed: int = 11) -> Order:
         f"GRN-{5000 + i}",
         inv.invoice_date - timedelta(days=rng.randint(1, 6)),
         seeded,
+        grn_ordered,
     )
 
 
@@ -439,7 +447,10 @@ def grn_pdf(o: Order) -> bytes:
         y -= 7 * mm
     y = _table(
         c,
-        [["Item", "Ordered", "Received"], [o.item, str(o.ordered_qty), str(o.received_qty)]],
+        [
+            ["Item", "Ordered", "Received"],
+            [o.item, str(o.grn_ordered_qty or o.ordered_qty), str(o.received_qty)],
+        ],
         20 * mm,
         y - 4 * mm,
         [90 * mm, 30 * mm, 30 * mm],

@@ -91,8 +91,12 @@
    "invoice_subtotal": 23160.0,
    "invoice_total": 27328.8
   },
-  "seeded": [],
-  "must_flag": []
+  "seeded": [
+   "qty_conflict"
+  ],
+  "must_flag": [
+   "ordered_qty"
+  ]
  },
  "po-2026-0205": {
   "record": {
@@ -185,8 +189,12 @@
    "invoice_subtotal": 1032.5,
    "invoice_total": 1218.34
   },
-  "seeded": [],
-  "must_flag": []
+  "seeded": [
+   "qty_conflict"
+  ],
+  "must_flag": [
+   "ordered_qty"
+  ]
  },
  "po-2026-0210": {
   "record": {
@@ -281,8 +289,11 @@
    "invoice_total": 11387.0
   },
   "seeded": [
-   "vendor_spelling"
+   "vendor_spelling",
+   "qty_conflict"
   ],
-  "must_flag": []
+  "must_flag": [
+   "ordered_qty"
+  ]
  }
 }

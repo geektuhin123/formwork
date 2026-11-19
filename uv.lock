@@ -609,12 +609,14 @@ version = "0.1.0"
 source = { editable = "packages/merge" }
 dependencies = [
     { name = "formwork-core" },
+    { name = "formwork-extract" },
     { name = "rapidfuzz" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "formwork-core", editable = "packages/core" },
+    { name = "formwork-extract", editable = "packages/extract" },
     { name = "rapidfuzz", specifier = ">=3.9" },
 ]
 

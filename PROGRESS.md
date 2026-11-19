@@ -25,7 +25,7 @@ Commit after each phase: `feat(phase-N): ...`. No Co-Authored-By / Claude-Sessio
 | 1 Ingest | DONE |
 | 2 Schema compiler + tabular mapper | DONE |
 | 3 Retrieval, router, extractors | DONE |
-| 4 Merge, validate, repair | todo |
+| 4 Merge, validate, repair | DONE |
 | 5 API, worker, output | todo |
 | 6 Review UI, feedback, evals | todo |
 
@@ -102,3 +102,28 @@ Deviations / notes:
   multi-record PDFs (statements) are only supported through the tabular path. Documented limitation.
 - Sheets are extracted once per document inside the first field group's task (one plan covers all fields).
 - Remaining misses offline are OCR misreads on scans (e.g. `4,451:85`); the heuristic "vision" tier cannot re-read pixels.
+
+## Phase 4 - Merge, validate, repair (DONE)
+Built: `packages/merge` (key normalisation, exact + conservative fuzzy key matching with OCR-confusable folding, all six
+merge policies, alternatives kept, array alignment), `packages/validate` (`rules.py` on simpleeval with attribute
+access removed; field checks; format-guided OCR look-alike fix; required-field gaps; repair loop with max 2 attempts,
+budget-aware; final statuses), `packages/pipeline` (`repair.py` batch repairer: strong tier + whole document + error
+feedback, attempt 2 adds the page image; `stages.py` merge/validate stages incl. re-keying a document whose key was
+recovered by repair; `local.py::run_local`), dataset `evals/datasets/po_vs_invoice` (15 orders x PO register xlsx +
+invoice pdf + scanned GRN; 9 seeded conflicts: 3 amount mismatches, 3 short shipments, 3 quantity conflicts; plus
+4 vendor-spelling variants that must NOT conflict).
+
+Acceptance (OFFLINE, FakeProvider):
+- 15 of 15 orders match across the three sources: pass (15 records, 0 unkeyed documents).
+- Every seeded conflict surfaces: 9 of 9. Quantity conflicts -> status `conflict` with the other value as an
+  alternative (require_agreement); amount mismatches and short shipments -> `failed_validation` from a cross-source rule
+  (never auto-approved, shown in review). Note the LLD wording says "conflict or a resolved value with alternatives";
+  rule-detected mismatches are a third surfacing path.
+- Repair lifts F1 by >= 3 points: with 15% deterministic fault injection on the cheap tier (omitted value, wrong
+  neighbour, hallucinated quote) F1 goes 0.875 -> 0.997 (+12.2 pts) on po_vs_invoice. Without injected faults the
+  offline pipeline is already at F1 1.000 there, so the lift is only measurable with faults. Re-measure live.
+- Budget: repairs stop at the job budget and the rest goes to review (`test_budget_stops_escalation_*`).
+
+Deviations: "fuzzy-match within the same document class" is implemented as fuzzy-match of single-document keys against
+other keys with identical digit sequences (cross-source matching is by definition cross-class). Rejected (ungrounded)
+values and required-but-missing fields are `Gap`s, not Extractions (an Extraction must carry evidence).

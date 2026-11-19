@@ -310,12 +310,18 @@ class HeuristicModel:
         ]
         cands: list[tuple[int, int, int, int, str, re.Match[str]]] = []
         for fi, f in enumerate(fields):
+            own_words = set(_words(_field_key(f) + " " + str(f.get("description", ""))).split())
             for rank, lab in enumerate(labels_for(f)):
                 pat = re.compile(
                     rf"(?<![a-z0-9]){re.escape(lab)}(?![a-z0-9])\s*(?:no\.?|number|#)?\s*[:\-–#|=]*\s*", re.I
                 )
                 for li, (_bid, ln) in enumerate(lines):
                     m = pat.search(ln)
+                    if m and " " not in lab:
+                        # "GRN Date" is not the invoice's "Date": a one-word label qualified by a foreign word is skipped.
+                        before = re.search(r"([A-Za-z]+)[ ]$", ln[: m.start()])
+                        if before and before.group(1).lower() not in own_words:
+                            continue
                     if m:
                         cands.append((-len(lab), rank, li, fi, lab, m))
         cands.sort(key=lambda c: c[:4])
@@ -366,6 +372,29 @@ class HeuristicModel:
                     "self_confidence": 0.97,
                 }
             out[key] = item
+        # Still missing: a single-row table whose column header is the field's label ("| Item | Ordered | Received |").
+        for bid, _t, text in blocks:
+            table = [ln for ln in text.split("\n") if ln.strip().startswith("|")]
+            data = [ln for ln in table[1:] if not all(re.fullmatch(r":?-{2,}:?", c) for c in _split_row(ln))]
+            if len(table) < 2 or len(data) != 1:
+                continue
+            header = [_words(c) for c in _split_row(table[0])]
+            cells = _split_row(data[0])
+            for f in fields:
+                key = _field_key(f)
+                if out[key] is not None:
+                    continue
+                for lab in labels_for(f):
+                    if lab in header and header.index(lab) < len(cells):
+                        value = parse_value(str(f["type"]), cells[header.index(lab)], f)
+                        if value is not None:
+                            out[key] = {
+                                "value": value,
+                                "block_id": bid,
+                                "quote": data[0].strip(),
+                                "self_confidence": 0.85,
+                            }
+                            break
         return out
 
     def _extract_rows(

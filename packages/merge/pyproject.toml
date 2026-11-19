@@ -5,11 +5,13 @@ description = "Formwork merge package"
 requires-python = ">=3.12"
 dependencies = [
   "formwork-core",
+  "formwork-extract",
   "rapidfuzz>=3.9",
 ]
 
 [tool.uv.sources]
 formwork-core = { workspace = true }
+formwork-extract = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

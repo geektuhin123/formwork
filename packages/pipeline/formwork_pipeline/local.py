@@ -3,11 +3,12 @@ functions with persistence between them."""
 
 from __future__ import annotations
 
-import asyncio
+import contextlib
 from dataclasses import dataclass, field
 from typing import Any
 
 from formwork_core.context import JobContext
+from formwork_core.errors import BudgetExceeded
 from formwork_core.groups import field_groups
 from formwork_core.models import Extraction, TargetSchema
 from formwork_core.provider import LLMCallRecord, MemorySink, MeteredProvider
@@ -16,6 +17,7 @@ from formwork_ingest import ParsedDocument, StoredFile, ingest_file
 from formwork_retrieval import classify_document
 
 from formwork_pipeline.extract import extract_group
+from formwork_pipeline.stages import RunOptions, build_sources, merge_stage, validate_stage
 
 
 @dataclass
@@ -56,7 +58,8 @@ async def ingest_and_classify(files: list[StoredFile], ctx: JobContext) -> list[
     docs: list[ParsedDocument] = []
     for f in files:
         for p in await ingest_file(f, ctx):
-            p.document.doc_class = await classify_document(p.document, ctx)
+            with contextlib.suppress(BudgetExceeded):  # unclassified is fine; extraction will stop on its own
+                p.document.doc_class = await classify_document(p.document, ctx)
             docs.append(p)
     return docs
 
@@ -69,16 +72,49 @@ async def extract_all(
     concurrency: int = 4,
 ) -> ExtractionReport:
     cache = plan_cache or MemoryPlanCache()
-    sem = asyncio.Semaphore(concurrency)
     report = ExtractionReport()
-
-    async def one(p: ParsedDocument, group_name: str) -> ExtractionReport:
-        async with sem:
-            group = next(g for g in field_groups(schema) if g.name == group_name)
-            return await extract_group(schema, p.document, group, ctx, cache)
-
-    # Sheets first and sequentially, so a shared header signature costs one plan call, not one per file.
+    # Sequential on purpose: a shared header signature then costs one plan call, not one per file.
     for p in docs:
         for g in field_groups(schema):
-            report.extend(await one(p, g.name))
+            try:
+                report.extend(await extract_group(schema, p.document, g, ctx, cache))
+            except BudgetExceeded:  # out of budget: keep what we have; the caller reports a partial result
+                report.budget_exhausted = True
+                return report
     return report
+
+
+async def run_local(
+    schema: TargetSchema, files: list[StoredFile], ctx: JobContext, options: RunOptions | None = None
+) -> LocalResult:
+    """ingest -> classify -> extract -> merge -> validate/repair, in memory."""
+    opts = options or RunOptions()
+    mctx, sink = metered(ctx)
+    cache = MemoryPlanCache()
+    docs = await ingest_and_classify(files, mctx)
+    report = await extract_all(schema, docs, mctx, cache)
+    meta = [
+        {
+            "id": p.document.id,
+            "filename": p.document.filename,
+            "doc_class": p.document.doc_class,
+            "document_date": p.meta.get("document_date"),
+        }
+        for p in docs
+    ]
+    sources = build_sources(meta, opts)
+    merged = merge_stage(schema, report.extractions, sources, mctx)
+    validated = await validate_stage(
+        schema, merged, report.rejected, {p.document.id: p.document for p in docs}, mctx, opts, cache, sources
+    )
+    stats = {**validated.stats, "rejected": len(report.rejected)}
+    stats["budget_exhausted"] = bool(stats.get("budget_exhausted") or report.budget_exhausted)
+    return LocalResult(
+        docs,
+        report.extractions,
+        report.rejected,
+        validated.extractions,
+        [g.as_dict() for g in validated.gaps],
+        list(sink.records),
+        stats,
+    )

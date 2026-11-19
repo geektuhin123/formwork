@@ -70,6 +70,7 @@ class RejectedValue:
 class ExtractionReport:
     extractions: list[Extraction] = field(default_factory=list)
     rejected: list[RejectedValue] = field(default_factory=list)
+    budget_exhausted: bool = False
 
     def extend(self, other: ExtractionReport) -> None:
         self.extractions.extend(other.extractions)
@@ -176,6 +177,7 @@ class LLMExtractor:
         doc_class: str | None = None,
         record_key: str | None = None,
         attempt: int = 1,
+        extra_images: list[bytes] | None = None,
     ) -> ExtractionReport:
         report = ExtractionReport()
         if not blocks or not group.fields:
@@ -200,7 +202,17 @@ class LLMExtractor:
         row_offset = 0
         for call_blocks in calls:
             row_offset += await self._call(
-                group, call_blocks, ctx, tier, feedback, doc_class, record_key, attempt, row_offset, report
+                group,
+                call_blocks,
+                ctx,
+                tier,
+                feedback,
+                doc_class,
+                record_key,
+                attempt,
+                row_offset,
+                report,
+                extra_images,
             )
         return report
 
@@ -216,6 +228,7 @@ class LLMExtractor:
         attempt: int,
         row_offset: int,
         report: ExtractionReport,
+        extra_images: list[bytes] | None = None,
     ) -> int:
         by_id = {b.id: b for b, _ in call_blocks}
         flagged: dict[str, list[tuple[int, int]]] = {}
@@ -228,8 +241,8 @@ class LLMExtractor:
                     "instruction_like_text_masked", block_id=b.id, document_id=b.document_id, spans=len(spans)
                 )
             rendered.append(render_block(b, safe))
-        images: list[bytes] = []
-        if self.with_images:
+        images: list[bytes] = list(extra_images or [])
+        if self.with_images and not images:
             for b, _ in call_blocks[:MAX_IMAGES]:
                 try:
                     images.append(await ctx.store.get(crop_key(ctx.tenant_id, b.document_id, b.id)))

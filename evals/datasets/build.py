@@ -56,6 +56,7 @@ def build_po_vs_invoice() -> None:
             "amount_mismatch": ["invoice_subtotal"],
             "short_shipment": ["received_qty"],
             "vendor_spelling": [],
+            "qty_conflict": ["ordered_qty"],
         }
         expected[o.po_number.lower()] = {
             "record": record,
