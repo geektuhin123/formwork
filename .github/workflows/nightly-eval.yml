@@ -1,0 +1,27 @@
+name: nightly-eval
+on:
+  schedule: [{ cron: "30 20 * * *" }]   # 02:00 IST
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      # The previous report is restored so the new one diffs against it.
+      - uses: actions/cache@v4
+        with: { path: evals/reports, key: "eval-reports-${{ github.run_id }}", restore-keys: "eval-reports-" }
+      - name: Run evals (live when the key is configured; add --tenant to replay production corrections)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FORMWORK_DATABASE_URL: ${{ secrets.FORMWORK_EVAL_DATABASE_URL }}
+        run: uv run python evals/run_eval.py --all --gate
+      - run: cat evals/reports/latest.md >> "$GITHUB_STEP_SUMMARY"
+        if: always()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: "eval-report-${{ github.run_id }}", path: evals/reports }

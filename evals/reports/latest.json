@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-16T20:19:03Z",
+ "generated_at": "2026-11-16T20:31:56Z",
  "mode": "offline",
  "had_previous": true,
  "datasets": [
@@ -27,7 +27,7 @@
    "cost_usd": 0.3415,
    "cost_per_page": 0.01707,
    "llm_calls": 78,
-   "seconds": 8.3,
+   "seconds": 8.5,
    "corrections": {
     "cases": 0,
     "replayable": 0,
@@ -229,7 +229,7 @@
    "cost_usd": 0.3203,
    "cost_per_page": 0.01033,
    "llm_calls": 84,
-   "seconds": 12.7,
+   "seconds": 13.2,
    "corrections": {
     "cases": 0,
     "replayable": 0,
@@ -240,13 +240,7 @@
    "worst_fields": [],
    "errors": [],
    "gate_failures": [],
-   "diff": {
-    "ungrounded": {
-     "previous": 72,
-     "current": 0,
-     "delta": -72
-    }
-   }
+   "diff": {}
   }
  ]
 }

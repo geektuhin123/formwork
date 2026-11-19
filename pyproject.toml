@@ -54,24 +54,25 @@ dev = [
   "types-openpyxl",
   "pandas-stubs",
   "types-boto3",
-  "playwright>=1.45",
+  "playwright==1.63.0",
 ]
 
 [tool.pytest.ini_options]
 addopts = "-q --import-mode=importlib -p no:cacheprovider"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-testpaths = ["packages", "apps/api", "apps/worker", "evals/tests"]
+testpaths = ["packages", "apps/api", "apps/worker", "evals/tests", "apps/web/e2e"]
 markers = [
   "db: needs a Postgres server (local binaries or FORMWORK_TEST_DATABASE_URL)",
   "redis: needs redis-server",
   "slow: slow test",
+  "e2e: browser flows against a running stack (apps/web/e2e)",
 ]
 
 [tool.ruff]
 line-length = 110
 target-version = "py312"
-extend-exclude = ["apps/web", "migrations/versions/__pycache__"]
+extend-exclude = ["apps/web/node_modules", "apps/web/.next", "migrations/versions/__pycache__"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "S", "ASYNC", "SIM", "RUF"]
@@ -79,7 +80,9 @@ ignore = ["E501", "RUF001", "RUF002", "RUF003", "S101", "S311", "RUF012", "B008"
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S", "B011", "ASYNC", "E731"]
-"evals/**" = ["S"]
+"evals/**" = ["S", "ASYNC"]
+"scripts/**" = ["S"]
+"apps/web/e2e/**" = ["S", "E731"]
 "migrations/**" = ["S608"]
 "conftest.py" = ["S"]
 "packages/testkit/**" = ["S"]

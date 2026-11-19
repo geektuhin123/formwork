@@ -1,0 +1,50 @@
+@import "./prototype.css";
+
+/* Additions for the production console. Tokens come from prototype.css / design-system/MASTER.md only. */
+a { color: var(--accent); text-underline-offset: 3px; }
+.view { display: block; }
+.stack { display: grid; gap: 16px; }
+.rowx { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.field-input, .ftable textarea { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 10px; width: 100%; }
+.ftable textarea { min-height: 54px; resize: vertical; line-height: 1.4; border-color: transparent; background: transparent; padding: 5px 7px; }
+.ftable textarea:hover { border-color: var(--line); }
+.ftable textarea:focus { border-color: var(--accent); background: var(--surface); outline: none; }
+.ftable textarea.is-weak { border-color: var(--warn); background: var(--warn-soft); }
+.jobs { width: 100%; border-collapse: collapse; font-size: 14px; }
+.jobs th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.jobs td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.jobs tr:last-child td { border-bottom: 0; }
+.jobs tbody tr:hover { background: var(--sunken); }
+.empty { padding: 36px 20px; text-align: center; color: var(--muted); }
+.alert { padding: 10px 14px; border-radius: 9px; background: var(--crit-soft); color: var(--crit); font-weight: 500; display: flex; gap: 8px; align-items: center; }
+.alert.info { background: var(--accent-soft); color: var(--accent); }
+.alert.warn { background: var(--warn-soft); color: var(--warn); }
+
+/* source viewer */
+.viewer { height: 380px; }
+.pagebox { position: relative; margin: 0 auto; width: 100%; max-width: 620px; background: #fff; box-shadow: var(--shadow); line-height: 0; }
+.pagebox img, .pagebox canvas { width: 100%; height: auto; display: block; }
+.hl { position: absolute; border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); border-radius: 3px; pointer-events: none;
+  transition: left .18s ease-out, top .18s ease-out, width .18s ease-out, height .18s ease-out; }
+.hl.alt { border-color: var(--crit); background: color-mix(in srgb, var(--crit) 16%, transparent); }
+.sheetview { background: var(--surface); border-radius: 6px; padding: 10px; box-shadow: var(--shadow); line-height: 1.4; overflow: auto; }
+.sheetview .loc { font: 12px var(--font-mono); color: var(--muted); margin-bottom: 8px; }
+.xl tr.hit td { background: var(--accent-soft); outline: 1px solid var(--accent); }
+.textview { background: var(--surface); border-radius: 6px; padding: 14px; box-shadow: var(--shadow); white-space: pre-wrap; font-size: 13.5px; line-height: 1.5; }
+.textview mark { background: var(--accent-soft); color: var(--ink); outline: 1px solid var(--accent); border-radius: 2px; padding: 0 2px; }
+.cell.st-missing { background: var(--warn-soft); border: 1px dashed var(--warn); }
+.cell.st-missing .val { color: var(--warn); font-style: italic; }
+.cell { transition: background-color .12s ease-out, box-shadow .12s ease-out; }
+.rowgrid { display: grid; gap: 4px; margin-top: 6px; }
+.rowgrid .r { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.rowgrid .cell { width: auto; min-width: 84px; }
+.status-ico { display: inline-flex; width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+.stage .st { display: flex; gap: 4px; align-items: center; }
+@media (max-width: 1100px) { .review { grid-template-columns: 1fr; } .run-grid, .schema-top, .export { grid-template-columns: 1fr; } .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { main { padding: 12px; } .top-row { padding: 8px 12px; } .steps { padding: 0 8px; } .ftable { font-size: 13px; } .facts { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+.export > *, .review > *, .run-grid > *, .schema-top > * { min-width: 0; }
+pre.code { max-width: 100%; }
+.alert, .done-banner { flex-wrap: wrap; }
+.view-head > div { min-width: 0; }
+.crumb b { overflow-wrap: anywhere; }

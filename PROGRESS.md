@@ -8,7 +8,10 @@ cd /home/claude/formwork-app
 uv sync                                   # Python deps (workspace)
 .venv/bin/ruff check . && .venv/bin/mypy packages apps && .venv/bin/pytest -q
 ```
-Then open the first phase below that is not marked DONE and follow its section in `docs/lld.md`.
+All seven phases are DONE; next work is the "Left for launch" list at the bottom of this file.
+Web: `(cd apps/web && npm ci && npm run build)`; browser flows: `.venv/bin/pytest apps/web/e2e -s`.
+Whole stack without Docker: `uv run python scripts/dev_stack.py`. Evals: `uv run python evals/run_eval.py --all --gate`.
+First thing to do once `ANTHROPIC_API_KEY` exists: run the evals live and replace the offline numbers below.
 Commit after each phase: `feat(phase-N): ...`. No Co-Authored-By / Claude-Session trailers.
 
 ## Environment facts (this sandbox)
@@ -27,7 +30,7 @@ Commit after each phase: `feat(phase-N): ...`. No Co-Authored-By / Claude-Sessio
 | 3 Retrieval, router, extractors | DONE |
 | 4 Merge, validate, repair | DONE |
 | 5 API, worker, output | DONE |
-| 6 Review UI, feedback, evals | todo |
+| 6 Review UI, feedback, evals | DONE |
 
 ## Phase 0 - Foundation (DONE)
 Built: uv workspace (13 packages + 2 apps), `formwork_core` (models, paths, ids, errors, config, provider, heuristic
@@ -153,3 +156,72 @@ route (`/v1/schemas/compile/sample`). `GET /result` renders from the database on
 the stored `output.*` and `lineage.json` objects are also written. Budget is checked before each call, so concurrent
 extract tasks can overshoot by the calls already in flight. Rate limiting is per process.
 Dockerfiles and docker-compose are written but could not be built or run here (no Docker daemon).
+
+## Phase 6 - Review UI, feedback, evals (DONE)
+Built: `apps/web` (Next.js 16 + TypeScript, app router): jobs list, new-job flow (Target format -> Sources), job page
+(Run -> Review -> Export), schema list/editor with weak-description warnings (< 8 words), review grid + inspector
+(confidence meter with threshold tick, source tabs, viewer with highlighted evidence, quote, checks, alternatives,
+approve / edit / use-this-value / next issue, keyboard A/E/N, threshold slider with bulk approve), export with preview
+and downloads; server-side API proxy that keeps the key out of the browser; optional basic-auth gate. Viewer: PDF.js
+for digital PDFs, stored deskewed page image for scans/photos, cited sheet rows, marked text for email/docx.
+`design-system/MASTER.md`; `evals/run_eval.py` (live/offline detection, gates, run-to-run diff, correction replay,
+`--tenant` to pull `eval_cases` from the DB), `.github/workflows/{ci,nightly-eval}.yml`, README,
+`scripts/dev_stack.py`.
+
+Acceptance:
+- Reviewer clears a 20-field queue in under 3 minutes: NOT measurable here (needs a person). What was measured: the
+  Playwright flow resolves a conflict, edits a value and approves 15 more queued fields in ~6 s of scripted clicks at
+  both 1440px and 390px; one keystroke or click per field, and the next issue is selected automatically.
+- A correction shows up in the next eval run: pass (`test_review_correction_in_db_reaches_the_eval_run`,
+  `test_eval_report_gates_diffs_and_includes_corrections`; the API test shows a review correction creating the case).
+- The eval report diffs against the previous run: pass (`evals/reports/latest.md`, "Change since the previous run").
+- Playwright flows at 1440px and 390px: 2 passed (select cell, switch source tabs across sheet/PDF/scan, approve, edit,
+  resolve conflict, export, no horizontal overflow, no console errors). Screenshots in `apps/web/e2e/screenshots`.
+
+Current offline eval baseline (`evals/reports/latest.md`):
+| Dataset | F1 | Ungrounded | Auto-approve rate | Auto-approved precision | Cost / page (estimated) |
+| --- | --- | --- | --- | --- | --- |
+| invoices (20 docs) | 0.977 | 0 | 99.1% | 0.996 | $0.0171 |
+| po_vs_invoice (31 files, 15 orders) | 1.000 | 0 | 93.3% | 1.000 | $0.0103 |
+
+Deviations:
+- The third-party UX skills named in the LLD (ui-ux-pro-max, impeccable, web-design-guidelines,
+  vercel-react-best-practices, emil-design-eng, webapp-testing) were not installed: the LLD itself says to read and pin
+  them first, and that is an owner decision. `design-system/MASTER.md` was written by hand from the prototype's
+  tokens; there is no `npx impeccable detect` step in CI. Browser flows use Python Playwright directly.
+- The console has no user accounts; it proxies one tenant's API key. SSO/RBAC is post-MVP in the LLD.
+- Browser flows are not part of CI yet (they need a built web app and browsers); CI runs lint, types, tests, the eval
+  gate, an OpenAPI drift check, the web build and image builds.
+- The dev dependency `playwright` is pinned to 1.63.0 to match the preinstalled browsers.
+
+## Test, lint and type status (end of Phase 6)
+`ruff check .` clean - `ruff format --check .` clean - `mypy packages apps` clean (strict, 81 files) -
+`pytest`: 96 passed (includes DB tests on a real Postgres with RLS, a real redis+arq SIGKILL test and 2 browser
+flows) - `npm run typecheck` and `next build` clean.
+
+## Left for launch (candid)
+Not done, in rough priority order:
+1. Live-model evals. Every quality and cost number above comes from the rule-based FakeProvider. Run the suite with a
+   key, expect lower first numbers, tune prompts and field descriptions, record real cassettes, and set
+   `FORMWORK_PRICE_*` to real prices (the defaults are placeholders). `AnthropicProvider` has only been exercised
+   against a hand-built response, never the real API.
+2. Real documents. Datasets are synthetic and clean. Needed: design-partner documents (messy scans, stamps,
+   handwriting, multi-page and multi-record PDFs, borderless tables, Hindi/regional text), a labelled set of 300+
+   fields to fit the confidence weights, and the bank_statements dataset the LLD lists.
+3. Known functional gaps: one record per document on the LLM path; block-level (not word-level) evidence boxes;
+   Tesseract instead of Docling/PaddleOCR; no handwriting/checkbox detection; hashing embedder instead of a real
+   embedding model; no presigned uploads; no few-shot memory from corrections; per-process rate limiting; budget can
+   overshoot by in-flight calls; no pagination cursors; no data-retention scheduler beyond zero-retention purge.
+4. Infrastructure not verified: docker-compose and the three Dockerfiles were never built or run (no Docker daemon
+   here); S3/MinIO store is untested against a real endpoint; no Kubernetes/Container Apps manifests, backups,
+   migrations-on-deploy, autoscaling on queue depth, or load test (the p95 <= 60 s target is unmeasured).
+5. Security review: independent pen test and threat model; secrets management and key rotation; webhook-secret
+   rotation; audit log; DNS-rebinding hardening for webhooks (resolve-then-connect); malware scanning of uploads;
+   PII masking before LLM calls and in logs (`llm_calls.response` stores model output); dependency and image scanning.
+6. Product: user accounts, SSO, RBAC, self-serve signup, usage metering and billing, plan limits, tenant admin UI,
+   API key management UI, status page, docs site.
+7. Legal and compliance: terms, privacy policy, DPA, sub-processor list (Anthropic), data residency for Indian
+   customers (DPDP Act), retention policy wording, SOC 2 / ISO 27001 path, IP review of fonts and dependencies.
+8. Observability in practice: OTel spans are emitted but no collector, dashboards, alerts or Langfuse project exist.
+9. Design: accessibility audit with real assistive tech, the UX skill audits from the LLD, usability sessions to
+   measure the 20-fields-in-3-minutes target with real reviewers.

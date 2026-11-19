@@ -100,7 +100,13 @@ async def apply_review(
     if action.action == "approve":
         if e.normalized_value is None:
             raise Conflict("this value failed validation and cannot be approved as-is; correct it")
-        updated = e.model_copy(update={"status": ExtractionStatus.APPROVED, "reason": None})
+        updated = e.model_copy(
+            update={
+                "status": ExtractionStatus.APPROVED,
+                "reason": "approved by reviewer",
+                "signals": {**e.signals, "human": 1.0},
+            }
+        )
     else:
         ev = e.evidence[0]
         block = await repo.get_block(ev.block_id) if keep_text else None
@@ -113,7 +119,13 @@ async def apply_review(
             if err:
                 raise ValidationFailed(err)
             if norm == e.normalized_value:
-                updated = e.model_copy(update={"status": ExtractionStatus.APPROVED, "reason": None})
+                updated = e.model_copy(
+                    update={
+                        "status": ExtractionStatus.APPROVED,
+                        "reason": "approved by reviewer",
+                        "signals": {**e.signals, "human": 1.0},
+                    }
+                )
             else:
                 manual = Evidence(
                     block_id=ev.block_id,

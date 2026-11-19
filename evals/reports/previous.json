@@ -1,7 +1,7 @@
 {
- "generated_at": "2026-11-16T20:18:01Z",
+ "generated_at": "2026-11-16T20:19:03Z",
  "mode": "offline",
- "had_previous": false,
+ "had_previous": true,
  "datasets": [
   {
    "dataset": "invoices",
@@ -27,7 +27,7 @@
    "cost_usd": 0.3415,
    "cost_per_page": 0.01707,
    "llm_calls": 78,
-   "seconds": 8.5,
+   "seconds": 8.3,
    "corrections": {
     "cases": 0,
     "replayable": 0,
@@ -219,7 +219,7 @@
    "f1": 1.0,
    "precision": 1.0,
    "recall": 1.0,
-   "ungrounded": 72,
+   "ungrounded": 0,
    "rejected_by_grounding": 0,
    "auto_approve_rate": 0.9333,
    "auto_approved_precision": 1.0,
@@ -229,7 +229,7 @@
    "cost_usd": 0.3203,
    "cost_per_page": 0.01033,
    "llm_calls": 84,
-   "seconds": 12.8,
+   "seconds": 12.7,
    "corrections": {
     "cases": 0,
     "replayable": 0,
@@ -239,10 +239,14 @@
    "corrections_pass_rate": null,
    "worst_fields": [],
    "errors": [],
-   "gate_failures": [
-    "72 ungrounded value(s) in output"
-   ],
-   "diff": {}
+   "gate_failures": [],
+   "diff": {
+    "ungrounded": {
+     "previous": 72,
+     "current": 0,
+     "delta": -72
+    }
+   }
   }
  ]
 }

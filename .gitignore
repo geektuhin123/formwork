@@ -11,7 +11,8 @@ out/
 dist/
 *.egg-info/
 .formwork/
-evals/reports/latest/
+evals/reports/previous.json
+apps/web/next-env.d.ts
 test-results/
 .DS_Store
 tsconfig.tsbuildinfo
