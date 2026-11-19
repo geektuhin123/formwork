@@ -23,7 +23,7 @@ Commit after each phase: `feat(phase-N): ...`. No Co-Authored-By / Claude-Sessio
 | --- | --- |
 | 0 Foundation | DONE |
 | 1 Ingest | DONE |
-| 2 Schema compiler + tabular mapper | todo |
+| 2 Schema compiler + tabular mapper | DONE |
 | 3 Retrieval, router, extractors | todo |
 | 4 Merge, validate, repair | todo |
 | 5 API, worker, output | todo |
@@ -64,3 +64,20 @@ Deviations:
   `CanonicalDocument`, so email attachments and page images travel with it.
 Known gaps: no handwriting/checkbox detection (those block types are never produced yet); evidence boxes are
 block-level, not word-level; `.xls`, `.msg`, `.pptx` unsupported; OCR language is English only.
+
+## Phase 2 - Schema compiler and tabular mapper (DONE)
+Built: `packages/schema_compiler` (JSON Schema walker with local `$ref`, sample CSV/XLSX/JSON with one describe call,
+prompt source via tool use, `weak_descriptions` under 8 words), `formwork_core.groups` (field groups),
+`formwork_core.normalize` (type-aware normalisation used everywhere), `extract/confidence.py`,
+`extract/tabular_mapper.py` (plan -> validate -> cache by header signature -> polars execution, row locators).
+
+Acceptance (6 + 7 tests):
+- Same messy XLSX twice = exactly 1 LLM call: pass (`test_same_sheet_twice_makes_exactly_one_llm_call`).
+- 50,000-row sheet maps in under 20 s: 7.6 s for 350,000 cited extractions, 1 LLM call (mapping only; parsing a
+  50k-row .xlsx with openpyxl is separate and takes roughly as long again).
+- Wrong column mapping caught by type validation in >= 4 of 5 seeded cases: 4 of 5 (the fifth maps text to a text
+  field, which type validation cannot see; that class needs format regexes or review).
+
+Deviations: `TabularMapper.extract_block(schema, block, ctx)` works per sheet block over the whole schema rather than
+per field group (one plan covers all fields). A plan that still fails validation after one retry keeps its valid
+columns and records the rejected ones in `MappingPlan.rejected`.

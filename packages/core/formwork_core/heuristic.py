@@ -99,7 +99,8 @@ def labels_for(field: dict[str, Any]) -> list[str]:
     name = _words(str(field.get("name") or field.get("path", "")).split(".")[-1].replace("[]", ""))
     out = [name]
     desc = str(field.get("description", ""))
-    out += [q.lower().strip() for q in re.findall(r"['\"“‘]([^'\"”’]{2,40})['\"”’]", desc)]
+    quoted = re.findall(r"(?<![A-Za-z0-9])['\"“‘]([^'\"”’]{2,40})['\"”’](?![A-Za-z0-9])", desc)
+    out += [q.lower().strip() for q in quoted]
     for full, shorts in _ABBREV.items():
         if full in name:
             out += [name.replace(full, s) for s in shorts]
@@ -156,6 +157,14 @@ def parse_value(ftype: str, rest: str, field: dict[str, Any]) -> Any:
         return None
     val = re.split(r"\s{2,}|\s\|\s|\|", rest)[0].strip(" :-|")
     return val or None
+
+
+def _label_score(header: str, label: str) -> float:
+    if header == label:
+        return 1.0
+    if re.search(rf"(?<![a-z0-9]){re.escape(label)}(?![a-z0-9])", header) and len(label) >= 4:
+        return 0.9
+    return difflib.SequenceMatcher(None, header, label).ratio() * 0.9
 
 
 def _split_row(ln: str) -> list[str]:
@@ -265,8 +274,7 @@ class HeuristicModel:
                 for h, hn in norm.items():
                     if h in used or not hn:
                         continue
-                    score = 1.0 if hn == lab else difflib.SequenceMatcher(None, hn, lab).ratio() * 0.9
-                    score -= 0.01 * lab_rank
+                    score = _label_score(hn, lab) - 0.01 * lab_rank
                     if score > best_score:
                         best, best_score = h, score
             if best is not None and best_score >= 0.74:
@@ -389,9 +397,7 @@ class HeuristicModel:
                     for ci, h in enumerate(header):
                         if ci in colmap.values() or not h:
                             continue
-                        score = (
-                            1.0 if h == lab else difflib.SequenceMatcher(None, h, lab).ratio() * 0.9
-                        ) - 0.01 * rank
+                        score = _label_score(h, lab) - 0.01 * rank
                         if score > best_score:
                             best, best_score = ci, score
                 if best is not None and best_score >= 0.74:

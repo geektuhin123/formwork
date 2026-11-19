@@ -496,6 +496,7 @@ def messy_invoice_xlsx(invoices: list[Invoice], rows: int | None = None) -> byte
     wb = openpyxl.Workbook(write_only=rows is not None and rows > 5000)
     ws = wb.create_sheet("Register") if wb.write_only else wb.active
     assert ws is not None
+    ws.title = "Register"
     ws.append(
         [
             "Bill No",
