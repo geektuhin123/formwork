@@ -90,8 +90,9 @@ strict = true
 plugins = ["pydantic.mypy"]
 exclude = ['/tests/', 'apps/web/']
 warn_unused_ignores = true
+untyped_calls_exclude = ["pymupdf", "reportlab", "pytesseract", "cv2", "docx", "openpyxl", "simpleeval", "arq", "boto3", "PIL", "polars", "pandas"]
 
 [[tool.mypy.overrides]]
-module = ["fitz.*", "pymupdf.*", "pytesseract.*", "simpleeval.*", "docx.*", "reportlab.*", "arq.*", "cv2.*", "rapidfuzz.*", "boto3.*", "botocore.*"]
+module = ["pymupdf.*", "pytesseract.*", "simpleeval.*", "docx.*", "reportlab.*", "arq.*", "cv2.*", "rapidfuzz.*", "boto3.*", "botocore.*"]
 ignore_missing_imports = true
 follow_untyped_imports = true
