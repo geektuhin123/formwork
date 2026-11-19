@@ -5,10 +5,12 @@ description = "Formwork feedback package"
 requires-python = ">=3.12"
 dependencies = [
   "formwork-core",
+  "formwork-extract",
 ]
 
 [tool.uv.sources]
 formwork-core = { workspace = true }
+formwork-extract = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

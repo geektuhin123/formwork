@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     database_admin_url: str | None = None  # owner role; used by migrations and the admin CLI only
     redis_url: str = "redis://localhost:6379/0"
     queue: Literal["arq", "inline"] = "arq"
+    queue_default: str = "formwork:default"
+    queue_heavy: str = "formwork:default"  # point ingest (OCR) at its own queue to give it bigger machines
+    worker_queue: str = "formwork:default"
+    worker_max_jobs: int = 8
+    job_timeout_s: int = 900
+    max_budget_usd: float = 100.0
 
     object_store: Literal["local", "s3"] = "local"
     local_store_path: str = ".formwork/objects"

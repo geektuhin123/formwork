@@ -26,7 +26,7 @@ Commit after each phase: `feat(phase-N): ...`. No Co-Authored-By / Claude-Sessio
 | 2 Schema compiler + tabular mapper | DONE |
 | 3 Retrieval, router, extractors | DONE |
 | 4 Merge, validate, repair | DONE |
-| 5 API, worker, output | todo |
+| 5 API, worker, output | DONE |
 | 6 Review UI, feedback, evals | todo |
 
 ## Phase 0 - Foundation (DONE)
@@ -127,3 +127,29 @@ Acceptance (OFFLINE, FakeProvider):
 Deviations: "fuzzy-match within the same document class" is implemented as fuzzy-match of single-document keys against
 other keys with identical digit sequences (cross-source matching is by definition cross-class). Rejected (ungrounded)
 values and required-but-missing fields are `Gap`s, not Extractions (an Extraction must carry evidence).
+
+## Phase 5 - API, worker, output (DONE)
+Built: `packages/output` (JSON/CSV/XLSX writers in schema field order, formula-injection guard, `lineage.json`),
+`packages/feedback` (corrections -> `eval_cases`, replay), `packages/pipeline/job.py` (`JobRunner`: task keys
+`(job, stage, document, field_group)` in `job_tasks`, per-job LLM response cache, budget, status webhooks, review
+completion, zero-retention purge), `pipeline/webhooks.py` (HMAC-SHA256, SSRF guard), `apps/api` (all LLD endpoints +
+`/v1/account`, `/v1/schemas` list, `/v1/schemas/compile/sample`, `/v1/jobs` list, `/v1/jobs/{id}/documents|calls`,
+`/v1/documents/{id}[/pages/{n}]`, `/v1/files/{id}/content`, `/healthz`; hashed API keys, rate limit, Idempotency-Key,
+request ids, typed errors), `apps/worker` (arq: `advance_job`, `run_task`, `deliver_webhook`, startup resume + sweep),
+`packages/sdk` (thin Python client + `verify_webhook`), `docs/openapi.json` (18 paths), Dockerfiles for api and worker.
+
+Acceptance:
+- 3-file job end to end over HTTP (PO xlsx + invoice pdf + scanned GRN): `test_three_file_job_end_to_end_*` - 5 status
+  webhooks then `completed` after review; partial result while in review; CSV/XLSX export.
+- Kill mid-job, restart, no duplicate LLM calls: `test_crash_mid_job_*` (in-process kill at 3 different points: paid
+  calls across both lifetimes == uninterrupted run) and `test_sigkill_real_arq_worker_then_restart` (real redis-server
+  + arq worker process, SIGKILL, new worker resumes; llm_calls rows == uninterrupted run, all request hashes unique).
+  Caveat: a call that is in flight at the instant of the kill has not been logged yet and is paid again once.
+- Webhook signature verifies (server `verify_webhook` and SDK `verify_webhook`); tampered body / wrong secret / stale
+  timestamp fail.
+
+Deviations: uploads are multipart only (no presigned-upload registration yet). Sample-file schema compile is its own
+route (`/v1/schemas/compile/sample`). `GET /result` renders from the database on demand (always current after review);
+the stored `output.*` and `lineage.json` objects are also written. Budget is checked before each call, so concurrent
+extract tasks can overshoot by the calls already in flight. Rate limiting is per process.
+Dockerfiles and docker-compose are written but could not be built or run here (no Docker daemon).

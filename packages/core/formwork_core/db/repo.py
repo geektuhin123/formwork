@@ -217,6 +217,11 @@ class TenantRepo:
             blocks=blocks,
         )
 
+    async def get_block(self, block_id: str) -> Row | None:
+        b = t.blocks
+        cols = [c for c in b.c if c.name != "embedding"]
+        return await self._one(select(*cols).where(and_(b.c.tenant_id == self.tenant_id, b.c.id == block_id)))
+
     async def documents_for_file(self, file_id: str) -> list[Row]:
         d = t.documents
         return await self._all(
@@ -259,6 +264,13 @@ class TenantRepo:
             raise NotFound(f"job {job_id} not found")
         row["cost_usd"] = float(row["cost_usd"] or 0)
         return row
+
+    async def find_job_by_idempotency_key(self, key: str) -> Row | None:
+        stmt = select(t.jobs.c.id).where(
+            and_(t.jobs.c.tenant_id == self.tenant_id, t.jobs.c.options["idempotency_key"].astext == key)
+        )
+        row = await self._one(stmt.limit(1))
+        return await self.get_job(row["id"]) if row else None
 
     async def list_jobs(self, limit: int = 50) -> list[Row]:
         rows = await self._all(

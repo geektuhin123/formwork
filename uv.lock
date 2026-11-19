@@ -571,10 +571,14 @@ version = "0.1.0"
 source = { editable = "packages/feedback" }
 dependencies = [
     { name = "formwork-core" },
+    { name = "formwork-extract" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "formwork-core", editable = "packages/core" }]
+requires-dist = [
+    { name = "formwork-core", editable = "packages/core" },
+    { name = "formwork-extract", editable = "packages/extract" },
+]
 
 [[package]]
 name = "formwork-ingest"
@@ -650,6 +654,7 @@ dependencies = [
     { name = "formwork-router" },
     { name = "formwork-schema-compiler" },
     { name = "formwork-validate" },
+    { name = "httpx" },
 ]
 
 [package.metadata]
@@ -664,6 +669,7 @@ requires-dist = [
     { name = "formwork-router", editable = "packages/router" },
     { name = "formwork-schema-compiler", editable = "packages/schema_compiler" },
     { name = "formwork-validate", editable = "packages/validate" },
+    { name = "httpx", specifier = ">=0.27" },
 ]
 
 [[package]]

@@ -1,0 +1,1871 @@
+{
+ "components": {
+  "schemas": {
+   "Body_compile_schema_from_sample_v1_schemas_compile_sample_post": {
+    "properties": {
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_compile_schema_from_sample_v1_schemas_compile_sample_post",
+    "type": "object"
+   },
+   "Body_parse_only_v1_parse_post": {
+    "properties": {
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_parse_only_v1_parse_post",
+    "type": "object"
+   },
+   "Body_upload_file_v1_files_post": {
+    "properties": {
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_upload_file_v1_files_post",
+    "type": "object"
+   },
+   "CompileRequest": {
+    "properties": {
+     "json_schema": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Json Schema"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "prompt": {
+      "anyOf": [
+       {
+        "maxLength": 8000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Prompt"
+     },
+     "source": {
+      "enum": [
+       "json_schema",
+       "prompt"
+      ],
+      "title": "Source",
+      "type": "string"
+     }
+    },
+    "required": [
+     "source"
+    ],
+    "title": "CompileRequest",
+    "type": "object"
+   },
+   "CompileResponse": {
+    "properties": {
+     "schema": {
+      "$ref": "#/components/schemas/TargetSchema"
+     },
+     "warnings": {
+      "items": {
+       "$ref": "#/components/schemas/Warning_"
+      },
+      "title": "Warnings",
+      "type": "array"
+     }
+    },
+    "required": [
+     "schema",
+     "warnings"
+    ],
+    "title": "CompileResponse",
+    "type": "object"
+   },
+   "FieldSpec-Input": {
+    "properties": {
+     "children": {
+      "items": {
+       "$ref": "#/components/schemas/FieldSpec-Input"
+      },
+      "title": "Children",
+      "type": "array"
+     },
+     "description": {
+      "title": "Description",
+      "type": "string"
+     },
+     "enum_values": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enum Values"
+     },
+     "examples": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Examples",
+      "type": "array"
+     },
+     "format": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Format"
+     },
+     "merge_policy": {
+      "default": "prefer_highest_confidence",
+      "title": "Merge Policy",
+      "type": "string"
+     },
+     "path": {
+      "title": "Path",
+      "type": "string"
+     },
+     "required": {
+      "default": true,
+      "title": "Required",
+      "type": "boolean"
+     },
+     "rules": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Rules",
+      "type": "array"
+     },
+     "type": {
+      "$ref": "#/components/schemas/FieldType"
+     }
+    },
+    "required": [
+     "path",
+     "type",
+     "description"
+    ],
+    "title": "FieldSpec",
+    "type": "object"
+   },
+   "FieldSpec-Output": {
+    "properties": {
+     "children": {
+      "items": {
+       "$ref": "#/components/schemas/FieldSpec-Output"
+      },
+      "title": "Children",
+      "type": "array"
+     },
+     "description": {
+      "title": "Description",
+      "type": "string"
+     },
+     "enum_values": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enum Values"
+     },
+     "examples": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Examples",
+      "type": "array"
+     },
+     "format": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Format"
+     },
+     "merge_policy": {
+      "default": "prefer_highest_confidence",
+      "title": "Merge Policy",
+      "type": "string"
+     },
+     "path": {
+      "title": "Path",
+      "type": "string"
+     },
+     "required": {
+      "default": true,
+      "title": "Required",
+      "type": "boolean"
+     },
+     "rules": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Rules",
+      "type": "array"
+     },
+     "type": {
+      "$ref": "#/components/schemas/FieldType"
+     }
+    },
+    "required": [
+     "path",
+     "type",
+     "description"
+    ],
+    "title": "FieldSpec",
+    "type": "object"
+   },
+   "FieldType": {
+    "enum": [
+     "string",
+     "integer",
+     "number",
+     "boolean",
+     "date",
+     "datetime",
+     "enum",
+     "currency",
+     "object",
+     "array"
+    ],
+    "title": "FieldType",
+    "type": "string"
+   },
+   "FileOut": {
+    "properties": {
+     "deduplicated": {
+      "title": "Deduplicated",
+      "type": "boolean"
+     },
+     "file_id": {
+      "title": "File Id",
+      "type": "string"
+     },
+     "filename": {
+      "title": "Filename",
+      "type": "string"
+     },
+     "mime_type": {
+      "title": "Mime Type",
+      "type": "string"
+     },
+     "sha256": {
+      "title": "Sha256",
+      "type": "string"
+     },
+     "size_bytes": {
+      "title": "Size Bytes",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "file_id",
+     "filename",
+     "mime_type",
+     "sha256",
+     "size_bytes",
+     "deduplicated"
+    ],
+    "title": "FileOut",
+    "type": "object"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "JobCreate": {
+    "properties": {
+     "file_ids": {
+      "items": {
+       "type": "string"
+      },
+      "minItems": 1,
+      "title": "File Ids",
+      "type": "array"
+     },
+     "options": {
+      "$ref": "#/components/schemas/JobOptions"
+     },
+     "schema_id": {
+      "title": "Schema Id",
+      "type": "string"
+     },
+     "schema_version": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Schema Version"
+     }
+    },
+    "required": [
+     "schema_id",
+     "file_ids"
+    ],
+    "title": "JobCreate",
+    "type": "object"
+   },
+   "JobOptions": {
+    "properties": {
+     "auto_approve_threshold": {
+      "anyOf": [
+       {
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Auto Approve Threshold"
+     },
+     "budget_usd": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Budget Usd"
+     },
+     "repair": {
+      "default": true,
+      "title": "Repair",
+      "type": "boolean"
+     },
+     "source_priority": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Source Priority",
+      "type": "array"
+     },
+     "webhook_url": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Webhook Url"
+     }
+    },
+    "title": "JobOptions",
+    "type": "object"
+   },
+   "JobOut": {
+    "properties": {
+     "budget_usd": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Budget Usd"
+     },
+     "cost_usd": {
+      "title": "Cost Usd",
+      "type": "number"
+     },
+     "created_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Created At"
+     },
+     "document_ids": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Document Ids",
+      "type": "array"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "file_ids": {
+      "items": {
+       "type": "string"
+      },
+      "title": "File Ids",
+      "type": "array"
+     },
+     "finished_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Finished At"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "options": {
+      "additionalProperties": true,
+      "title": "Options",
+      "type": "object"
+     },
+     "progress": {
+      "additionalProperties": true,
+      "title": "Progress",
+      "type": "object"
+     },
+     "schema_id": {
+      "title": "Schema Id",
+      "type": "string"
+     },
+     "schema_version": {
+      "title": "Schema Version",
+      "type": "integer"
+     },
+     "stats": {
+      "additionalProperties": true,
+      "title": "Stats",
+      "type": "object"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "status",
+     "schema_id",
+     "schema_version",
+     "file_ids",
+     "cost_usd",
+     "budget_usd",
+     "progress",
+     "stats",
+     "options",
+     "error",
+     "created_at",
+     "finished_at"
+    ],
+    "title": "JobOut",
+    "type": "object"
+   },
+   "OutputFormat": {
+    "enum": [
+     "json",
+     "csv",
+     "xlsx"
+    ],
+    "title": "OutputFormat",
+    "type": "string"
+   },
+   "ReviewAction": {
+    "properties": {
+     "action": {
+      "enum": [
+       "approve",
+       "correct",
+       "pick_alternative"
+      ],
+      "title": "Action",
+      "type": "string"
+     },
+     "alternative_index": {
+      "anyOf": [
+       {
+        "minimum": 0.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alternative Index"
+     },
+     "reviewer": {
+      "anyOf": [
+       {
+        "maxLength": 120,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reviewer"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "title": "ReviewAction",
+    "type": "object"
+   },
+   "ReviewResult": {
+    "properties": {
+     "eval_case_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Eval Case Id"
+     },
+     "item": {
+      "additionalProperties": true,
+      "title": "Item",
+      "type": "object"
+     },
+     "job_status": {
+      "title": "Job Status",
+      "type": "string"
+     },
+     "remaining": {
+      "title": "Remaining",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "item",
+     "job_status",
+     "remaining"
+    ],
+    "title": "ReviewResult",
+    "type": "object"
+   },
+   "SchemaIn": {
+    "properties": {
+     "entity_key": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Entity Key",
+      "type": "array"
+     },
+     "fields": {
+      "items": {
+       "$ref": "#/components/schemas/FieldSpec-Input"
+      },
+      "maxItems": 300,
+      "minItems": 1,
+      "title": "Fields",
+      "type": "array"
+     },
+     "name": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+     },
+     "output_format": {
+      "$ref": "#/components/schemas/OutputFormat",
+      "default": "json"
+     },
+     "record_grain": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Record Grain",
+      "type": "string"
+     },
+     "source_hint": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Hint"
+     }
+    },
+    "required": [
+     "name",
+     "record_grain",
+     "entity_key",
+     "fields"
+    ],
+    "title": "SchemaIn",
+    "type": "object"
+   },
+   "SchemaSummary": {
+    "properties": {
+     "created_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Created At"
+     },
+     "field_count": {
+      "title": "Field Count",
+      "type": "integer"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "integer"
+     },
+     "weak_descriptions": {
+      "title": "Weak Descriptions",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "id",
+     "version",
+     "name",
+     "field_count",
+     "weak_descriptions",
+     "created_at"
+    ],
+    "title": "SchemaSummary",
+    "type": "object"
+   },
+   "TargetSchema": {
+    "properties": {
+     "entity_key": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Entity Key",
+      "type": "array"
+     },
+     "fields": {
+      "items": {
+       "$ref": "#/components/schemas/FieldSpec-Output"
+      },
+      "title": "Fields",
+      "type": "array"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "output_format": {
+      "$ref": "#/components/schemas/OutputFormat",
+      "default": "json"
+     },
+     "record_grain": {
+      "title": "Record Grain",
+      "type": "string"
+     },
+     "source_hint": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Hint"
+     },
+     "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "id",
+     "tenant_id",
+     "name",
+     "version",
+     "record_grain",
+     "entity_key",
+     "fields"
+    ],
+    "title": "TargetSchema",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "Warning_": {
+    "properties": {
+     "message": {
+      "title": "Message",
+      "type": "string"
+     },
+     "path": {
+      "title": "Path",
+      "type": "string"
+     },
+     "words": {
+      "title": "Words",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "path",
+     "words",
+     "message"
+    ],
+    "title": "Warning_",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "description": "Schema-driven document transformation: a target format plus unstructured sources in, one cited dataset out.",
+  "title": "Formwork API",
+  "version": "0.1.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/v1/account": {
+   "get": {
+    "description": "The calling tenant, including the secret used to sign webhooks.",
+    "operationId": "account_v1_account_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Account V1 Account Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Account",
+    "tags": [
+     "account"
+    ]
+   }
+  },
+  "/v1/documents/{document_id}": {
+   "get": {
+    "operationId": "get_document_v1_documents__document_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "title": "Document Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Get Document V1 Documents  Document Id  Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Get Document",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/v1/documents/{document_id}/pages/{page}": {
+   "get": {
+    "description": "Rendered page image (PNG). OCR boxes are relative to this image.",
+    "operationId": "document_page_v1_documents__document_id__pages__page__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "page",
+      "required": true,
+      "schema": {
+       "title": "Page",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Document Page",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/v1/files": {
+   "post": {
+    "description": "Upload one source file (multipart). The type is detected from content, not from the name.",
+    "operationId": "upload_file_v1_files_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_upload_file_v1_files_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FileOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Upload File",
+    "tags": [
+     "files"
+    ]
+   }
+  },
+  "/v1/files/{file_id}/content": {
+   "get": {
+    "operationId": "file_content_v1_files__file_id__content_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "file_id",
+      "required": true,
+      "schema": {
+       "title": "File Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "File Content",
+    "tags": [
+     "files"
+    ]
+   }
+  },
+  "/v1/jobs": {
+   "get": {
+    "operationId": "list_jobs_v1_jobs_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 200,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/JobOut"
+         },
+         "title": "Response List Jobs V1 Jobs Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List Jobs",
+    "tags": [
+     "jobs"
+    ]
+   },
+   "post": {
+    "description": "Start a job: schema + files. Poll GET /v1/jobs/{id} or pass options.webhook_url.",
+    "operationId": "create_job_v1_jobs_post",
+    "parameters": [
+     {
+      "in": "header",
+      "name": "idempotency-key",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 200,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Idempotency-Key"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/JobCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create Job",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}": {
+   "get": {
+    "description": "Status, progress, cost and stats.",
+    "operationId": "get_job_v1_jobs__job_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobOut"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Get Job",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/calls": {
+   "get": {
+    "description": "Cost and latency per LLM call and per stage (the job page's cost breakdown).",
+    "operationId": "job_calls_v1_jobs__job_id__calls_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Job Calls V1 Jobs  Job Id  Calls Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Job Calls",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/documents": {
+   "get": {
+    "operationId": "job_documents_v1_jobs__job_id__documents_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "additionalProperties": true,
+          "type": "object"
+         },
+         "title": "Response Job Documents V1 Jobs  Job Id  Documents Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Job Documents",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/lineage": {
+   "get": {
+    "description": "Per-field evidence, confidence, extractor and alternatives, keyed by record and field.",
+    "operationId": "job_lineage_v1_jobs__job_id__lineage_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Job Lineage V1 Jobs  Job Id  Lineage Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Job Lineage",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/result": {
+   "get": {
+    "description": "The output file. Only approved values are written unless include_unreviewed=true. A job that is not `completed`\nreturns a partial result with the header X-Formwork-Partial: true.",
+    "operationId": "job_result_v1_jobs__job_id__result_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "format",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/OutputFormat"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Format"
+      }
+     },
+     {
+      "in": "query",
+      "name": "include_unreviewed",
+      "required": false,
+      "schema": {
+       "default": false,
+       "title": "Include Unreviewed",
+       "type": "boolean"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Job Result",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/review": {
+   "get": {
+    "description": "Fields waiting for review (all=true returns every field, for the review grid).",
+    "operationId": "review_queue_v1_jobs__job_id__review_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "all",
+      "required": false,
+      "schema": {
+       "default": false,
+       "title": "All",
+       "type": "boolean"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Review Queue V1 Jobs  Job Id  Review Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Review Queue",
+    "tags": [
+     "review"
+    ]
+   }
+  },
+  "/v1/jobs/{job_id}/review/{item_id}": {
+   "post": {
+    "description": "Approve, correct or pick an alternative. Corrections are saved as eval cases.",
+    "operationId": "review_item_v1_jobs__job_id__review__item_id__post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "title": "Job Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "item_id",
+      "required": true,
+      "schema": {
+       "title": "Item Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReviewAction"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReviewResult"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Review Item",
+    "tags": [
+     "review"
+    ]
+   }
+  },
+  "/v1/parse": {
+   "post": {
+    "description": "Parse only: returns the CanonicalDocument(s) for a file (an email returns its attachments too). Nothing is stored.",
+    "operationId": "parse_only_v1_parse_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_parse_only_v1_parse_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Parse Only V1 Parse Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Parse Only",
+    "tags": [
+     "files"
+    ]
+   }
+  },
+  "/v1/schemas": {
+   "get": {
+    "operationId": "list_schemas_v1_schemas_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/SchemaSummary"
+         },
+         "title": "Response List Schemas V1 Schemas Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "List Schemas",
+    "tags": [
+     "schemas"
+    ]
+   },
+   "post": {
+    "description": "Save a confirmed schema as version 1.",
+    "operationId": "create_schema_v1_schemas_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SchemaIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompileResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Create Schema",
+    "tags": [
+     "schemas"
+    ]
+   }
+  },
+  "/v1/schemas/compile": {
+   "post": {
+    "description": "Draft a TargetSchema from a JSON Schema or a natural-language description. Nothing is saved.",
+    "operationId": "compile_schema_v1_schemas_compile_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CompileRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompileResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Compile Schema",
+    "tags": [
+     "schemas"
+    ]
+   }
+  },
+  "/v1/schemas/compile/sample": {
+   "post": {
+    "description": "Draft a TargetSchema from a sample output file (CSV, XLSX or JSON). Nothing is saved.",
+    "operationId": "compile_schema_from_sample_v1_schemas_compile_sample_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_compile_schema_from_sample_v1_schemas_compile_sample_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompileResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Compile Schema From Sample",
+    "tags": [
+     "schemas"
+    ]
+   }
+  },
+  "/v1/schemas/{schema_id}": {
+   "get": {
+    "operationId": "get_schema_v1_schemas__schema_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "schema_id",
+      "required": true,
+      "schema": {
+       "title": "Schema Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "version",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Version"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompileResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Get Schema",
+    "tags": [
+     "schemas"
+    ]
+   },
+   "put": {
+    "description": "Save a new version. Jobs pin the version they started with, so past results never change.",
+    "operationId": "update_schema_v1_schemas__schema_id__put",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "schema_id",
+      "required": true,
+      "schema": {
+       "title": "Schema Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SchemaIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompileResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update Schema",
+    "tags": [
+     "schemas"
+    ]
+   }
+  }
+ }
+}
