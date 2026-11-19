@@ -194,7 +194,7 @@ def check_rules(schema: TargetSchema, extractions: list[Extraction]) -> list[Ext
                 cur = values.get(path)
                 if (
                     cur is None
-                    or cur.normalized_valucur is None
+                    or cur.normalized_value is None
                     or cur.status in (ExtractionStatus.CONFLICT, ExtractionStatus.APPROVED)
                 ):
                     continue
