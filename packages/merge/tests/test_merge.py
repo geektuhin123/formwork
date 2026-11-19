@@ -117,7 +117,7 @@ def test_every_merge_policy():
         "old": SourceInfo("old", document_date="2026-01-01", priority=5, order=0),
         "new": SourceInfo("new", document_date="2026-03-01", priority=1, order=1),
     }
-    val = lambda p: by(merge(policy_schema(p), cands, sources))[("po-1", "invoice_total")]  # noqa: E731
+    val = lambda p: by(merge(policy_schema(p), cands, sources))[("po-1", "invoice_total")]
     assert (
         val(MergePolicy.PREFER_HIGHEST_CONFIDENCE).value == 100
         and val("prefer_highest_confidence").alternatives[0].value == 120

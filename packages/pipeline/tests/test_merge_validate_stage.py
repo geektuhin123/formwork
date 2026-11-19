@@ -94,7 +94,7 @@ async def test_injection_that_reaches_a_gullible_model_is_still_not_approved(mon
 async def test_budget_stops_escalation_and_remaining_fields_go_to_review():
     inv = synth.make_invoice(7)
     files = [StoredFile("i.pdf", synth.invoice_pdf(inv))]
-    faulty = lambda: FakeProvider(responder=HeuristicModel(error_rate=0.5, seed=1))  # noqa: E731
+    faulty = lambda: FakeProvider(responder=HeuristicModel(error_rate=0.5, seed=1))
     free = await run_local(INV, files, JobContext.for_tests(provider=faulty()), RunOptions(repair=False))
     unlimited = await run_local(INV, files, JobContext.for_tests(provider=faulty()))
     ctx = JobContext.for_tests(provider=faulty())

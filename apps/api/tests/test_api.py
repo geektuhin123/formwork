@@ -189,7 +189,7 @@ async def test_job_validation_errors(api):
     f = await upload(api, "a.pdf", synth.invoice_pdf(synth.make_invoice(1)))
     post = lambda **o: api.post(
         "/v1/jobs", json={"schema_id": schema["id"], "file_ids": [f["file_id"]], "options": o}
-    )  # noqa: E731
+    )
     assert (await post(webhook_url="ftp://x")).status_code == 422
     assert (await post(budget_usd=10_000)).status_code == 422
     assert (await post(auto_approve_threshold=2)).status_code == 422

@@ -1,0 +1,252 @@
+{
+ "generated_at": "2026-11-16T20:19:03Z",
+ "mode": "offline",
+ "had_previous": true,
+ "datasets": [
+  {
+   "dataset": "invoices",
+   "mode": "offline",
+   "models": {
+    "cheap": "fake-cheap",
+    "strong": "fake-strong"
+   },
+   "documents": 20,
+   "pages": 20,
+   "records": 20,
+   "expected_records": 20,
+   "f1": 0.9766,
+   "precision": 0.9962,
+   "recall": 0.9578,
+   "ungrounded": 0,
+   "rejected_by_grounding": 0,
+   "auto_approve_rate": 0.9905,
+   "auto_approved_precision": 0.9962,
+   "in_review": 5,
+   "seeded_conflicts": 0,
+   "seeded_conflicts_surfaced": 0,
+   "cost_usd": 0.3415,
+   "cost_per_page": 0.01707,
+   "llm_calls": 78,
+   "seconds": 8.3,
+   "corrections": {
+    "cases": 0,
+    "replayable": 0,
+    "passed": 0,
+    "results": []
+   },
+   "corrections_pass_rate": null,
+   "worst_fields": [
+    {
+     "field": "line_items[].amount",
+     "fp": 0,
+     "fn": 4
+    },
+    {
+     "field": "line_items[].description",
+     "fp": 0,
+     "fn": 4
+    },
+    {
+     "field": "line_items[].hsn_code",
+     "fp": 0,
+     "fn": 4
+    },
+    {
+     "field": "line_items[].quantity",
+     "fp": 0,
+     "fn": 4
+    },
+    {
+     "field": "line_items[].unit_price",
+     "fp": 0,
+     "fn": 4
+    }
+   ],
+   "errors": [
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[0].amount",
+     "expected": 43225.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[0].description",
+     "expected": "Epoxy Adhesive 1kg",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[0].hsn_code",
+     "expected": "3506",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[0].quantity",
+     "expected": 95,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[0].unit_price",
+     "expected": 455.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[1].amount",
+     "expected": 6240.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[1].description",
+     "expected": "Corrugated Box 5 Ply",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[1].hsn_code",
+     "expected": "4819",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[1].quantity",
+     "expected": 130,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "line_items[1].unit_price",
+     "expected": 48.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1003",
+     "field": "sgst",
+     "expected": 4451.85,
+     "got": 4451.0
+    },
+    {
+     "record": "inv-2026-1011",
+     "field": "line_items[3].amount",
+     "expected": 965.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1011",
+     "field": "line_items[3].description",
+     "expected": "LED Driver 18W",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1011",
+     "field": "line_items[3].hsn_code",
+     "expected": "8504",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1011",
+     "field": "line_items[3].quantity",
+     "expected": 10,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1011",
+     "field": "line_items[3].unit_price",
+     "expected": 96.5,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1015",
+     "field": "currency",
+     "expected": "INR",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "line_items[1].amount",
+     "expected": 10850.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "line_items[1].description",
+     "expected": "Stretch Film Roll 23 micron",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "line_items[1].hsn_code",
+     "expected": "3920",
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "line_items[1].quantity",
+     "expected": 35,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "line_items[1].unit_price",
+     "expected": 310.0,
+     "got": null
+    },
+    {
+     "record": "inv-2026-1019",
+     "field": "vendor_name",
+     "expected": "Deccan Fasteners Pvt Ltd",
+     "got": "Deccan Fasteners PvtLid"
+    }
+   ],
+   "gate_failures": [],
+   "diff": {}
+  },
+  {
+   "dataset": "po_vs_invoice",
+   "mode": "offline",
+   "models": {
+    "cheap": "fake-cheap",
+    "strong": "fake-strong"
+   },
+   "documents": 31,
+   "pages": 31,
+   "records": 15,
+   "expected_records": 15,
+   "f1": 1.0,
+   "precision": 1.0,
+   "recall": 1.0,
+   "ungrounded": 0,
+   "rejected_by_grounding": 0,
+   "auto_approve_rate": 0.9333,
+   "auto_approved_precision": 1.0,
+   "in_review": 11,
+   "seeded_conflicts": 9,
+   "seeded_conflicts_surfaced": 9,
+   "cost_usd": 0.3203,
+   "cost_per_page": 0.01033,
+   "llm_calls": 84,
+   "seconds": 12.7,
+   "corrections": {
+    "cases": 0,
+    "replayable": 0,
+    "passed": 0,
+    "results": []
+   },
+   "corrections_pass_rate": null,
+   "worst_fields": [],
+   "errors": [],
+   "gate_failures": [],
+   "diff": {
+    "ungrounded": {
+     "previous": 72,
+     "current": 0,
+     "delta": -72
+    }
+   }
+  }
+ ]
+}
