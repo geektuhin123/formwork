@@ -64,6 +64,11 @@ uv run python scripts/dev_stack.py   # API :8000, console :3000, prints an API k
 Without `ANTHROPIC_API_KEY` everything runs on the deterministic `FakeProvider` (a rule-based stand-in that reads the
 same prompts). It is good for development and plumbing tests, not for judging extraction quality.
 
+**Try the console**: once the stack is up, `samples/` has a ready-to-drop-in schema, an xlsx and four PDFs (two
+orders, a seeded short shipment and a seeded quantity conflict) with a step-by-step walkthrough in
+`samples/README.md` — including the Review screen's **Lineage** view, which graphs how each field's value was
+merged from its source documents.
+
 ## API in five calls
 
 ```bash
