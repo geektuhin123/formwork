@@ -43,7 +43,8 @@ Top bar + five-step stepper (Target format, Sources, Run, Review, Export) · `ca
 `seg` segmented control · `chip` · schema `ftable` with inline weak-description warning · `drop` zone and `src` cards ·
 `pipeline` stages and `metric` tiles · review `summary` tiles with the threshold slider · record grid `rg` of `cell`
 buttons (value, state dot, confidence bar) · inspector `insp` (value, confidence meter with threshold tick, source
-tabs, viewer, quote, checks, alternatives, actions) · `export` options + preview.
+tabs, viewer, quote, checks, alternatives, actions) · `export` options + preview · lineage graph `lineage` (source/record/
+field nodes reusing `cell`, `ln-edge` bezier paths with click-to-highlight, `rec-tabs` record switch).
 
 Viewer: digital PDFs render with PDF.js; scans and photos show the stored deskewed page image (OCR boxes refer to
 it); sheets show the cited rows with the row highlighted; email/docx show the block text with the quote marked.

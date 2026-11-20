@@ -39,6 +39,28 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .rowgrid .r { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 .rowgrid .cell { width: auto; min-width: 84px; }
 .status-ico { display: inline-flex; width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+
+/* lineage graph */
+.lineage { position: relative; min-height: 360px; padding: 8px 4px 4px; overflow-x: auto; }
+.ln-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ln-edge { fill: none; stroke: var(--line); stroke-width: 1.4; transition: stroke .15s ease-out, stroke-width .15s ease-out, opacity .15s ease-out; }
+.ln-edge.winner { stroke: var(--good); }
+.ln-edge.corroborates { stroke: var(--accent); }
+.ln-edge.loser { stroke: var(--muted); stroke-dasharray: 3 3; }
+.ln-edge.on { stroke-width: 2.4; opacity: 1; }
+.ln-edge.dim { opacity: .16; }
+.ln-src, .ln-rec { position: absolute; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 12px; width: 170px; }
+.ln-rec { border-color: var(--accent); border-width: 1.6px; }
+.ln-src { cursor: pointer; appearance: none; font: inherit; text-align: left; }
+.ln-src:hover, .ln-src.on { border-color: var(--accent); }
+.ln-src .fname, .ln-rec .fname { display: block; font: 12.5px var(--font-mono); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ln-src .sub, .ln-rec .sub { display: block; margin-top: 3px; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.ln-rec .fname { font: 13px var(--font-mono); font-weight: 600; }
+.lineage .cell { position: absolute; width: 190px; }
+.rec-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 10px; }
+.rec-tabs button { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 6px 11px; font: 12px var(--font-mono); cursor: pointer; white-space: nowrap; }
+.rec-tabs button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.lineage-note { font-size: 11.5px; color: var(--muted); padding: 6px 2px 0; }
 .stage .st { display: flex; gap: 4px; align-items: center; }
 @media (max-width: 1100px) { .review { grid-template-columns: 1fr; } .run-grid, .schema-top, .export { grid-template-columns: 1fr; } .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { main { padding: 12px; } .top-row { padding: 8px 12px; } .steps { padding: 0 8px; } .ftable { font-size: 13px; } .facts { grid-template-columns: 1fr; } }

@@ -100,6 +100,20 @@ def test_define_run_review_export(stack, sources, width, height):
         box = page.get_by_test_id("highlight").bounding_box()
         assert box and box["width"] > 20 and box["height"] > 5
 
+        # 3b. Lineage graph: toggle on, a field node drives the same inspector, record tabs switch records
+        page.get_by_role("button", name="Lineage").click()
+        expect(page.get_by_test_id("lineage-graph")).to_be_visible()
+        page.screenshot(path=str(SHOTS / f"lineage-{tag}.png"))
+        page.locator('[data-testid="cell"][data-field="po_number"]').first.click()
+        expect(page.get_by_test_id("insp-value")).to_be_visible()
+        expect(page.locator(".ln-edge.winner.on")).not_to_have_count(0)
+        tabs = page.get_by_test_id("lineage-record-tab")
+        if tabs.count() > 1:
+            other_key = tabs.nth(1).inner_text()
+            tabs.nth(1).click()
+            expect(page.locator(".insp .fname").first).to_contain_text(other_key)
+        page.get_by_role("button", name="Grid").click()
+
         # 4. Switch source tabs: po_number is cited to the sheet (row highlighted) and to both PDFs
         page.locator('[data-testid="cell"][data-field="po_number"]').first.click()
         tabs = page.get_by_test_id("source-tab")
@@ -171,7 +185,7 @@ def test_define_run_review_export(stack, sources, width, height):
 
         # no horizontal page overflow at this width, and the job list shows the finished job
         wide = page.evaluate(
-            "[...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1 && !e.closest('.scroll-x, .grid-wrap, pre, .viewer, .steps')).map(e => e.className || e.tagName).slice(0, 5)"
+            "[...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1 && !e.closest('.scroll-x, .grid-wrap, .lineage, pre, .viewer, .steps')).map(e => e.className || e.tagName).slice(0, 5)"
         )
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), wide
         page.goto(stack.web_url)

@@ -64,6 +64,75 @@ export function fmt(v: unknown): string {
   return String(v);
 }
 
+export type LineageNodeKind = "source" | "record" | "field";
+export type LineageEdgeRole = "field" | "winner" | "corroborates" | "loser";
+export type LineageNode = {
+  id: string; kind: LineageNodeKind; label: string; sub?: string; tone?: Tone; itemId?: string; rows?: number;
+};
+export type LineageEdge = { id: string; from: string; to: string; role: LineageEdgeRole; tone?: Tone };
+export type LineageGraph = { nodes: LineageNode[]; edges: LineageEdge[]; truncatedSources: number };
+export const MAX_LINEAGE_SOURCES = 14;
+
+/** Node/edge view of one record for the lineage graph: which source documents fed which fields, and who won. */
+export function buildLineageGraph(
+  items: Item[], docs: Doc[], schema: TargetSchema, recordKey: string, threshold: number,
+): LineageGraph {
+  const recordItems = items.filter((i) => i.record_key === recordKey);
+  const byField = new Map(recordItems.map((i) => [i.field, i]));
+  const scalars = leaves(schema.fields).filter((f) => !f.path.includes("[]"));
+  const arrays = schema.fields.filter((f) => f.type === "array");
+  const docById = new Map(docs.map((d) => [d.id, d]));
+
+  const fieldNodes: LineageNode[] = [];
+  const sourceEdges: { docId: string; to: string; role: LineageEdgeRole; tone?: Tone }[] = [];
+  const seen = new Set<string>();
+  const cites = new Map<string, number>();
+
+  const addField = (path: string, label: string, item: Item | undefined, rows?: number) => {
+    const t = item ? tone(item, threshold) : "missing";
+    const id = `fld:${path}`;
+    fieldNodes.push({ id, kind: "field", label, tone: t, itemId: item?.id, rows });
+    if (!item) return;
+    const cite = (docId: string, role: LineageEdgeRole) => {
+      if (docId === "manual") return;
+      const key = `${docId}|${id}|${role}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      sourceEdges.push({ docId, to: id, role, tone: t });
+      cites.set(docId, (cites.get(docId) ?? 0) + 1);
+    };
+    item.evidence.forEach((ev, i) => cite(ev.document_id, i === 0 ? "winner" : "corroborates"));
+    item.alternatives.forEach((a) => cite(a.document_id, "loser"));
+  };
+
+  for (const f of scalars) addField(f.path, f.path, byField.get(f.path));
+  for (const a of arrays) {
+    const kids = recordItems.filter((i) => i.field.startsWith(a.path + "["));
+    const rows = new Set(kids.map((i) => i.field.slice(0, i.field.indexOf("]") + 1))).size;
+    const worst = kids.find((i) => tone(i, threshold) === "conflict") ?? kids.find((i) => tone(i, threshold) === "review") ?? kids[0];
+    addField(a.path, a.path, worst, rows);
+  }
+
+  const ranked = [...cites.keys()].sort((x, y) => cites.get(y)! - cites.get(x)!);
+  const kept = new Set(ranked.slice(0, MAX_LINEAGE_SOURCES));
+  const truncatedSources = Math.max(0, ranked.length - MAX_LINEAGE_SOURCES);
+
+  const sourceNodes: LineageNode[] = [...kept].map((docId) => {
+    const d = docById.get(docId);
+    return { id: `src:${docId}`, kind: "source", label: d?.filename ?? docId, sub: d?.doc_class ?? (d?.digital ? "digital" : "scan") };
+  });
+
+  const edges: LineageEdge[] = [
+    ...fieldNodes.map((n): LineageEdge => ({ id: `record|${n.id}`, from: "record", to: n.id, role: "field", tone: n.tone })),
+    ...sourceEdges.filter((e) => kept.has(e.docId)).map((e): LineageEdge => ({ id: `${e.docId}|${e.to}|${e.role}`, from: `src:${e.docId}`, to: e.to, role: e.role, tone: e.tone })),
+  ];
+
+  return {
+    nodes: [{ id: "record", kind: "record", label: recordKey, sub: "merged record" }, ...sourceNodes, ...fieldNodes],
+    edges, truncatedSources,
+  };
+}
+
 export type Tone = "auto" | "review" | "conflict" | "approved" | "missing";
 /** Display state of a cell. The threshold slider re-triages auto-approved values on the client. */
 export function tone(item: Item, threshold: number): Tone {

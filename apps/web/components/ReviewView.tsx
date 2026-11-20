@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Doc, Evidence, Item, Job, TONE_LABEL, TargetSchema, Tone, fmt, leaves, post, tone } from "@/lib/api";
+import { Doc, Evidence, Item, Job, TONE_LABEL, TargetSchema, Tone, buildLineageGraph, fmt, leaves, post, tone } from "@/lib/api";
+import { LineageView } from "./LineageView";
 import { ErrorNote, Icon } from "./Shell";
 import { SourceViewer } from "./SourceViewer";
 
@@ -14,6 +15,8 @@ export function ReviewView({ job, schema, items, docs, reload, onExport }: Props
   const [threshold, setThreshold] = useState<number>(job.options.auto_approve_threshold ?? 0.9);
   const [filter, setFilter] = useState<"all" | "review" | "conflict">("all");
   const [selId, setSelId] = useState<string | null>(null);
+  const [mode, setMode] = useState<"grid" | "lineage">("grid");
+  const [lineageRecord, setLineageRecord] = useState<string>("");
   const [src, setSrc] = useState(0);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -33,8 +36,22 @@ export function ReviewView({ job, schema, items, docs, reload, onExport }: Props
   const issues = useMemo(() => items.filter((i) => open(tones.get(i.id)!)), [items, tones]);
   const sel = items.find((i) => i.id === selId) ?? issues[0] ?? items[0];
   const count = (t: Tone) => items.filter((i) => tones.get(i.id) === t).length;
+  const itemsById = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
+  const multiSource = job.document_ids.length > 1;
+  const lineageGraph = useMemo(
+    () => (mode === "lineage" && lineageRecord ? buildLineageGraph(items, docs, schema, lineageRecord, threshold) : null),
+    [mode, lineageRecord, items, docs, schema, threshold],
+  );
 
   useEffect(() => { setSrc(0); setEditing(false); setError(null); }, [sel?.id]);
+  useEffect(() => { if (mode === "lineage" && sel) setLineageRecord(sel.record_key); }, [sel?.record_key, mode]);
+  useEffect(() => { if (!multiSource && mode === "lineage") setMode("grid"); }, [multiSource, mode]);
+
+  const selectLineageRecord = useCallback((key: string) => {
+    setLineageRecord(key);
+    const first = [...(records.find(([k]) => k === key)?.[1].values() ?? [])][0];
+    if (first) setSelId(first.id);
+  }, [records]);
 
   const act = useCallback(async (item: Item, body: Record<string, unknown>, advance = true) => {
     setBusy(true); setError(null);
@@ -114,28 +131,37 @@ export function ReviewView({ job, schema, items, docs, reload, onExport }: Props
       <div className="review">
         <div className="card">
           <div className="grid-tools">
+            {multiSource && (
+              <div className="seg" role="group" aria-label="View">
+                {([["grid", "Grid"], ["lineage", "Lineage"]] as const).map(([m, l]) => <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>{l}</button>)}</div>
+            )}
             <div className="seg" role="group" aria-label="Filter cells">
               {([["all", "All fields"], ["review", "Needs review"], ["conflict", "Conflicts"]] as const).map(([f, l]) => <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}>{l}</button>)}</div>
             <div className="key-legend">
               <span><i style={{ background: "var(--good)" }} />Auto-approved</span><span><i style={{ background: "var(--warn)" }} />Low confidence</span>
               <span><i style={{ background: "var(--crit)" }} />Sources disagree</span><span><i style={{ background: "var(--accent)" }} />Approved by you</span></div>
           </div>
-          <div className="grid-wrap"><table className="rg">
-            <thead><tr><th className="rec">Record</th>{scalars.map((f) => <th key={f.path}><span className="fname">{f.path}</span><small>{f.type}</small></th>)}
-              {arrays.map((a) => <th key={a.path}><span className="fname">{a.path}</span><small>rows</small></th>)}</tr></thead>
-            <tbody>{records.map(([key, fields]) => (
-              <tr key={key}><td className="rec"><b>{key}</b><small>{[...new Set([...fields.values()].flatMap((i) => i.evidence.map((e) => e.document_id)))].filter((d) => d !== "manual").length} sources</small></td>
-                {scalars.map((f) => <td key={f.path}>{cell(fields.get(f.path), `${f.path} for ${key}`, f.path)}</td>)}
-                {arrays.map((a) => {
-                  const kids = [...fields.values()].filter((i) => i.field.startsWith(a.path + "["));
-                  const worst = kids.find((i) => tones.get(i.id) === "conflict") ?? kids.find((i) => open(tones.get(i.id)!)) ?? kids[0];
-                  const n = new Set(kids.map((i) => i.field.slice(0, i.field.indexOf("]") + 1))).size;
-                  if (!worst) return <td key={a.path}>{cell(fields.get(a.path), a.path, a.path)}</td>;
-                  const wt = tones.get(worst.id)!;
-                  return <td key={a.path}><button type="button" className={`cell st-${open(wt) ? wt : "auto"}`} aria-pressed={kids.some((k) => k.id === sel.id)} onClick={() => setSelId(worst.id)}
-                    aria-label={`${a.path} for ${key}: ${n} rows`}><span className="dot" /><span className="val">{n} row{n === 1 ? "" : "s"}</span><span className="cb"><i style={{ width: "100%" }} /></span></button></td>;
-                })}</tr>))}</tbody>
-          </table></div>
+          {mode === "lineage" && lineageGraph ? (
+            <LineageView graph={lineageGraph} recordKeys={records.map(([key]) => key)} recordKey={lineageRecord}
+              onRecordChange={selectLineageRecord} selId={sel.id} onSelect={setSelId} filter={filter} itemsById={itemsById} />
+          ) : (
+            <div className="grid-wrap"><table className="rg">
+              <thead><tr><th className="rec">Record</th>{scalars.map((f) => <th key={f.path}><span className="fname">{f.path}</span><small>{f.type}</small></th>)}
+                {arrays.map((a) => <th key={a.path}><span className="fname">{a.path}</span><small>rows</small></th>)}</tr></thead>
+              <tbody>{records.map(([key, fields]) => (
+                <tr key={key}><td className="rec"><b>{key}</b><small>{[...new Set([...fields.values()].flatMap((i) => i.evidence.map((e) => e.document_id)))].filter((d) => d !== "manual").length} sources</small></td>
+                  {scalars.map((f) => <td key={f.path}>{cell(fields.get(f.path), `${f.path} for ${key}`, f.path)}</td>)}
+                  {arrays.map((a) => {
+                    const kids = [...fields.values()].filter((i) => i.field.startsWith(a.path + "["));
+                    const worst = kids.find((i) => tones.get(i.id) === "conflict") ?? kids.find((i) => open(tones.get(i.id)!)) ?? kids[0];
+                    const n = new Set(kids.map((i) => i.field.slice(0, i.field.indexOf("]") + 1))).size;
+                    if (!worst) return <td key={a.path}>{cell(fields.get(a.path), a.path, a.path)}</td>;
+                    const wt = tones.get(worst.id)!;
+                    return <td key={a.path}><button type="button" className={`cell st-${open(wt) ? wt : "auto"}`} aria-pressed={kids.some((k) => k.id === sel.id)} onClick={() => setSelId(worst.id)}
+                      aria-label={`${a.path} for ${key}: ${n} rows`}><span className="dot" /><span className="val">{n} row{n === 1 ? "" : "s"}</span><span className="cb"><i style={{ width: "100%" }} /></span></button></td>;
+                  })}</tr>))}</tbody>
+            </table></div>
+          )}
         </div>
         <aside className="card insp" aria-label="Field inspector" data-testid="inspector">
           <div className="insp-head"><div style={{ minWidth: 0 }}><div className="fname">{sel.field} · {sel.record_key}</div>
