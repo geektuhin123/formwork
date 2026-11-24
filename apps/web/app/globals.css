@@ -61,6 +61,19 @@ a { color: var(--accent); text-underline-offset: 3px; }
 .rec-tabs button { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 6px 11px; font: 12px var(--font-mono); cursor: pointer; white-space: nowrap; }
 .rec-tabs button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .lineage-note { font-size: 11.5px; color: var(--muted); padding: 6px 2px 0; }
+
+/* shared tree primitive: schema field tree + export data tree */
+.tree-twirl { appearance: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 2px; display: inline-flex; align-items: center; justify-content: center; vertical-align: -1px; margin-right: 4px; }
+.tree-twirl:hover { color: var(--ink); }
+.tree-twirl-ic { transition: transform .12s ease-out; }
+.ftree-parent td { background: var(--sunken); }
+.ftree-child td { color: var(--muted); }
+.ftree-child td .fname { color: var(--ink); }
+.dtree { list-style: none; margin: 0; padding-left: 16px; font-size: 12.5px; }
+.dtree-row { padding: 3px 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.dtree-key { color: var(--muted); }
+.dtree-val { color: var(--ink); }
+.dtree-branch { flex-direction: column; align-items: stretch; }
 .stage .st { display: flex; gap: 4px; align-items: center; }
 @media (max-width: 1100px) { .review { grid-template-columns: 1fr; } .run-grid, .schema-top, .export { grid-template-columns: 1fr; } .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { main { padding: 12px; } .top-row { padding: 8px 12px; } .steps { padding: 0 8px; } .ftable { font-size: 13px; } .facts { grid-template-columns: 1fr; } }

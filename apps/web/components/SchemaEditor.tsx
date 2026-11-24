@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { FieldSpec, TargetSchema, WEAK_WORDS, leaves } from "@/lib/api";
 import { Icon } from "./Shell";
 
@@ -17,13 +18,39 @@ function remove(fields: FieldSpec[], path: string): FieldSpec[] {
   return fields.filter((f) => f.path !== path).map((f) => (f.children?.length ? { ...f, children: remove(f.children, path) } : f));
 }
 
+function Twirl({ open }: { open: boolean }) {
+  return (
+    <svg className="tree-twirl-ic" width="10" height="10" viewBox="0 0 16 16" aria-hidden="true" style={{ transform: open ? "rotate(90deg)" : undefined }}>
+      <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+type Row = { field: FieldSpec; depth: number; hasChildren: boolean };
+
+function flatten(fields: FieldSpec[], depth: number, collapsed: Set<string>, out: Row[] = []): Row[] {
+  for (const f of fields) {
+    const hasChildren = f.type === "array" && !!f.children?.length;
+    out.push({ field: f, depth, hasChildren });
+    if (hasChildren && !collapsed.has(f.path)) flatten(f.children, depth + 1, collapsed, out);
+  }
+  return out;
+}
+
 export function SchemaEditor({ schema, onChange }: { schema: TargetSchema; onChange: (s: TargetSchema) => void }) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const set = (path: string, patch: Partial<FieldSpec>) => onChange({ ...schema, fields: update(schema.fields, path, patch) });
-  const rows = leaves(schema.fields);
+  const toggle = (path: string) => setCollapsed((prev) => {
+    const next = new Set(prev);
+    next.has(path) ? next.delete(path) : next.add(path);
+    return next;
+  });
+  const rows = flatten(schema.fields, 0, collapsed);
   const weak = weakCount(schema);
   const addField = () => {
-    let n = rows.length + 1;
-    while (rows.some((r) => r.path === `field_${n}`)) n++;
+    const leafPaths = new Set(leaves(schema.fields).map((f) => f.path));
+    let n = leafPaths.size + 1;
+    while (leafPaths.has(`field_${n}`)) n++;
     onChange({ ...schema, fields: [...schema.fields, { path: `field_${n}`, type: "string", description: "", required: false, examples: [], rules: [], merge_policy: POLICIES[0], children: [] }] });
   };
   const toggleKey = (path: string) => {
@@ -48,7 +75,7 @@ export function SchemaEditor({ schema, onChange }: { schema: TargetSchema; onCha
       </div>
       <div className="card">
         <div className="prev-head">
-          <h3>Fields <span className="muted" style={{ fontWeight: 400, fontSize: 14 }}>{rows.length}</span></h3>
+          <h3>Fields <span className="muted" style={{ fontWeight: 400, fontSize: 14 }}>{leaves(schema.fields).length}</span></h3>
           <div className="rowx">
             {weak > 0
               ? <span className="chip warn" data-testid="weak-count">{Icon.warn}{weak} weak description{weak === 1 ? "" : "s"}</span>
@@ -57,24 +84,33 @@ export function SchemaEditor({ schema, onChange }: { schema: TargetSchema; onCha
           </div>
         </div>
         <div className="scroll-x">
-          <table className="ftable">
+          <table className="ftable ftree">
             <thead><tr><th>Field</th><th>Type</th><th style={{ minWidth: 320 }}>Description (what to look for)</th><th>Required</th><th>Rule</th><th>Merge policy</th><th><span className="sr">Remove</span></th></tr></thead>
             <tbody>
-              {rows.map((f) => {
+              {rows.map(({ field: f, depth, hasChildren }) => {
                 const n = words(f.description);
                 const isKey = schema.entity_key.includes(f.path);
-                const nested = f.path.includes("[]") || f.path.includes(".");
+                const canBeKey = depth === 0 && f.type !== "array";
+                const isArray = f.type === "array";
                 return (
-                  <tr key={f.path} data-field={f.path}>
-                    <td>
+                  <tr key={f.path} data-field={f.path} className={depth > 0 ? "ftree-child" : isArray ? "ftree-parent" : undefined}>
+                    <td style={{ paddingLeft: 10 + depth * 20 }}>
+                      {hasChildren && (
+                        <button type="button" className="tree-twirl" aria-expanded={!collapsed.has(f.path)} aria-label={`${collapsed.has(f.path) ? "Expand" : "Collapse"} ${f.path}`} onClick={() => toggle(f.path)}>
+                          <Twirl open={!collapsed.has(f.path)} />
+                        </button>
+                      )}
                       <span className="fname">{f.path}</span>
-                      {!nested && (
+                      {isArray && <span className="muted" style={{ marginLeft: 6, fontSize: 11 }}>{f.children.length} field{f.children.length === 1 ? "" : "s"}</span>}
+                      {canBeKey && (
                         <button type="button" className="btn ghost" style={{ minHeight: 24, padding: "0 6px", fontSize: 11 }} aria-pressed={isKey} onClick={() => toggleKey(f.path)}
                           title="Use as entity key">{isKey ? <span className="keymark">KEY</span> : <span className="muted">set key</span>}</button>
                       )}
                     </td>
-                    <td><select value={f.type} onChange={(e) => set(f.path, { type: e.target.value })} aria-label={`Type of ${f.path}`}>
-                      {TYPES.map((t) => <option key={t}>{t}</option>)}</select></td>
+                    <td>{isArray
+                      ? <span className="mono muted">array</span>
+                      : <select value={f.type} onChange={(e) => set(f.path, { type: e.target.value })} aria-label={`Type of ${f.path}`}>
+                        {TYPES.map((t) => <option key={t}>{t}</option>)}</select>}</td>
                     <td>
                       <textarea value={f.description} className={n < WEAK_WORDS ? "is-weak" : ""} aria-label={`Description of ${f.path}`}
                         aria-describedby={n < WEAK_WORDS ? `weak-${f.path}` : undefined} onChange={(e) => set(f.path, { description: e.target.value })} />

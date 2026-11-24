@@ -12,7 +12,7 @@ const EXAMPLE_PROMPT = "From each supplier invoice I need: invoice number, invoi
 function NewJob() {
   const router = useRouter();
   const [step, setStep] = useState<"schema" | "sources">("schema");
-  const [mode, setMode] = useState<Mode>("sample");
+  const [mode, setMode] = useState<Mode>("prompt");
   const [schema, setSchema] = useState<TargetSchema | null>(null);
   const [saved, setSaved] = useState<{ id: string; version: number; name: string }[]>([]);
   const [jsonText, setJsonText] = useState("");
@@ -80,7 +80,7 @@ function NewJob() {
             <div className="tabbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: "1px solid var(--line)", flexWrap: "wrap" }}>
               <h3>Define it from</h3>
               <div className="seg" role="group" aria-label="How to define the target format">
-                {([["sample", "Sample file"], ["json", "JSON Schema"], ["prompt", "Describe it"], ["saved", "Saved schema"]] as [Mode, string][]).map(([m, label]) => (
+                {([["prompt", "Describe it"], ["sample", "Sample file"], ["json", "JSON Schema"], ["saved", "Saved schema"]] as [Mode, string][]).map(([m, label]) => (
                   <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>{label}</button>))}
               </div>
             </div>
